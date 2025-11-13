@@ -1,3 +1,5 @@
+![CI](https://github.com/Kisai-DG-SLU/attrition-esn/actions/workflows/ci.yml/badge.svg)
+
 ```markdown
 ```
 
