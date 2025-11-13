@@ -1,0 +1,17 @@
+# Dépendances pour l'API FastAPI
+fastapi
+uvicorn
+
+# Machine Learning
+scikit-learn
+pandas
+numpy
+xgboost
+
+# Rééquilibrage des classes (SMOTE)
+imbalanced-learn
+
+# Interprétabilité (graphes waterfall SHAP)
+shap
+matplotlib
+
