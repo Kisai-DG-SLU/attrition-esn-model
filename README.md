@@ -193,7 +193,6 @@ pytest tests/
 ## Contact & contributions
 
 Pour toute demande, suggestion ou collaboration :
-- [Auteur] daminou / Kisai DG SLU
-- Issues & PR bienvenues sur le repo GitHub.
+- [Auteur] Damien GUESDON / Kisai DG SLU
 
 ***
