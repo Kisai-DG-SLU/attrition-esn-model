@@ -169,6 +169,27 @@ pytest tests/
 
 ***
 
+## Standards de code et d’expérimentation Machine Learning
+
+- Le code est organisé par modules :
+    - `app/` pour l’API (FastAPI)
+    - `notebooks/` pour l’exploration et l’expérimentation
+    - `models/` pour les modèles sauvegardés
+    - `tests/` pour les tests automatisés
+- Les dépendances sont gérées via `uv`/`pyproject.toml` et listées dans `requirements.txt`.
+- Respect strict de la PEP8 : lint automatique via [ruff](https://docs.astral.sh/ruff/) et formatage avec [black](https://black.readthedocs.io/).
+- Les fonctions publiques contiennent une docstring (style Google).
+- Les notebooks sont nettoyés avant commit (aucune cellule d’erreur, résutats reproductibles, signatures de pipeline/paramètres claires).
+- Les expériences ML sont tracées :
+    - les seeds et splits sont toujours fixés,
+    - les hyperparamètres et scores sont sauvegardés dans les notebooks/scripts,
+    - les modèles exportés sont versionnés explicitement (`model-xgb-weighted-v1.pkl`…)
+- Les tests (dossier `tests/`) sont automatisés avec [pytest](https://docs.pytest.org/), et exécutés à chaque push par la CI/CD (GitHub Actions).
+- Un “sanity check” valide l’intégration CI avant ajout de vrais tests métiers.
+- Les branches sont protégées : tout ajout passe par PR et la CI doit être verte pour merger.
+- Les conventions de commit sont claires : début par le type (`feat:`, `fix:`, `test:`), description en anglais.
+
+***
 ## Contact & contributions
 
 Pour toute demande, suggestion ou collaboration :
