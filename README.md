@@ -120,7 +120,7 @@ La structure adoptée vise à séparer exploration, code applicatif, scripts, mo
 3. **Lancer l’API (FastAPI)**
    
    ```
-  a ecrire 
+   a ecrire
    ```
 
 ***
