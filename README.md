@@ -1,4 +1,6 @@
 ![CI](https://github.com/Kisai-DG-SLU/attrition-esn/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Kisai-DG-SLU/attrition-esn-model/actions/workflows/dependency-graph/auto-submission/badge.svg)
+![CI](https://github.com/Kisai-DG-SLU/attrition-esn-model/actions/workflows/github-code-scanning/codeql/badge.svg)
 
 ```markdown
 ```
