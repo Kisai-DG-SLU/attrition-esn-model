@@ -1,4 +1,6 @@
 name: CI (tests + lint)
+permissions:
+  contents: read
 
 on:
   push:

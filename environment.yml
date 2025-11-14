@@ -1,0 +1,28 @@
+name: mlpy310
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - imbalanced-learn
+  - xgboost=2.0.3
+  - shap=0.45.0
+  - jupyterlab
+  - ipykernel
+  - fastapi
+  - uvicorn
+  - pydantic
+  - sqlalchemy
+  - sqlite
+  - psycopg2
+  - pytest
+  - pytest-cov
+  - httpx
+  - pytest-asyncio
+  - pip
+  - pip:
+      - huggingface_hub
