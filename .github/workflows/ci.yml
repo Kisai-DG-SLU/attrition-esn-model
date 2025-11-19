@@ -32,13 +32,13 @@ jobs:
         run: pip install pytest coverage
 
       - name: Run tests with coverage
-        run: coverage run -m pytest tests/ || true
+        run: coverage run -m pytest tests/
 
       - name: Report coverage (console)
-        run: coverage report --show-missing || true
+        run: coverage report --show-missing
 
       - name: Generate coverage HTML report
-        run: coverage html || true
+        run: coverage html
 
       # Publie le dossier htmlcov/ sur la branche gh-pages (OK même vide)
       - name: Deploy coverage report to GitHub Pages
@@ -47,4 +47,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./htmlcov
           force_orphan: true
-          allow_empty_commit: true
