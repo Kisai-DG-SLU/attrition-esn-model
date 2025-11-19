@@ -1,0 +1,3 @@
+db_url: sqlite:///app.db
+model_path: model.xgb
+

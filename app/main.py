@@ -1,6 +1,8 @@
-def main():
-    print("Hello from attrition-esn!")
+from fastapi import FastAPI
+from app.api import router
 
-
-if __name__ == "__main__":
-    main()
+app = FastAPI(
+    title="Attrition ESN API",
+    description="API de prédiction d’attrition des salariés d’ESN"
+)
+app.include_router(router)
