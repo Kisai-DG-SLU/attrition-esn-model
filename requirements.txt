@@ -6,12 +6,12 @@ uvicorn
 scikit-learn
 pandas
 numpy
-xgboost
+xgboost==2.0.3
 
 # Rééquilibrage des classes (SMOTE)
 imbalanced-learn
 
 # Interprétabilité (graphes waterfall SHAP)
-shap
+shap==0.45.0
 matplotlib
 

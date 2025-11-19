@@ -1,0 +1,61 @@
+name: Release to test branch
+
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows: ["CI (tests + lint + coverage)"]
+    types:
+      - completed
+
+jobs:
+  copy-release-to-test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main and fetch all branches
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Configure git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Fetch test branch
+        run: git fetch origin test:test
+
+      - name: Switch to test branch
+        run: git checkout test
+
+      - name: Update release files from main
+        run: |
+          git checkout main -- app models/model.xgb README_HF.md requirements_hf.txt
+          mv README_HF.md README.md
+          mv requirements_hf.txt requirements.txt
+          git add app models/model.xgb README.md requirements.txt
+
+      - name: Commit and push to test branch
+        run: |
+          git commit -m "Release: Updating Hugging Face Space (test) from main" || echo "Nothing to commit"
+          git push origin test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git for HF Space
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Add Hugging Face remote and push branch
+        run: |
+          git remote add hfspace https://huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git
+          git fetch hfspace
+          git push https://:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git test:main --force
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
