@@ -49,7 +49,7 @@ jobs:
       - name: Préparation dossier publication coverage
         run: |
           rm -rf public_htmlcov
-          cp -r htmlcov public_htmlcov
+          cp -r htmlcov/* public_htmlcov/
 
       - name: Debug dossier publication
         run: ls -lR public_htmlcov
