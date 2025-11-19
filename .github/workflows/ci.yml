@@ -41,23 +41,11 @@ jobs:
         run: coverage html
 
       - name: Vérification contenu coverage HTML
-        run: |
-          ls -lR ./htmlcov
-          pwd
-
-      # --- Correction pour publication sur gh-pages ----
-      - name: Préparation dossier publication coverage
-        run: |
-          rm -rf public_htmlcov
-          mkdir public_htmlcov
-          cp -r htmlcov/* public_htmlcov/
-
-      - name: Debug dossier publication
-        run: ls -lR public_htmlcov
+        run: ls -lR ./htmlcov
 
       - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./htmlcov
-
+          force_orphan: true
