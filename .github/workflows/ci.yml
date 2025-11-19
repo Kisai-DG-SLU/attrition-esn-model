@@ -40,6 +40,11 @@ jobs:
       - name: Generate coverage HTML report
         run: coverage html
 
+      - name: Vérification contenu coverage HTML
+        run: |
+          ls -lR ./htmlcov
+          pwd
+
       # Publie le dossier htmlcov/ sur la branche gh-pages (OK même vide)
       - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
