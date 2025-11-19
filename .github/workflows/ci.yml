@@ -40,14 +40,11 @@ jobs:
       - name: Generate coverage HTML report
         run: coverage html || true
 
-      - name: Ensure htmlcov exists
-        run: mkdir -p htmlcov && echo "<html><body>Coverage placeholder</body></html>" > htmlcov/index.html
-
-      # Publie le dossier htmlcov/ sur la branche gh-pages
+      # Publie le dossier htmlcov/ sur la branche gh-pages (OK même vide)
       - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./htmlcov
-          force_orphan: true  # écraser le rapport à chaque déploiement
-
+          force_orphan: true
+          allow_empty_commit: true
