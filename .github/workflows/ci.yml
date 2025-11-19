@@ -41,7 +41,7 @@ jobs:
         run: coverage html || true
 
       - name: Ensure htmlcov exists
-        run: mkdir -p htmlcov && touch htmlcov/index.html
+        run: mkdir -p htmlcov && echo "<html><body>Coverage placeholder</body></html>" > htmlcov/index.html
 
       # Publie le dossier htmlcov/ sur la branche gh-pages
       - name: Deploy coverage report to GitHub Pages
