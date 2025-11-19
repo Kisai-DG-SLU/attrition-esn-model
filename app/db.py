@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, text
-import os
 
 SQLITE_URL = "sqlite:///app.db"
 engine = create_engine(SQLITE_URL)
