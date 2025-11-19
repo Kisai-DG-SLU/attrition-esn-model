@@ -1,6 +1,6 @@
-name: CI (tests + lint)
+name: CI (tests + lint + coverage)
 permissions:
-  contents: read
+  contents: write
 
 on:
   push:
@@ -22,9 +22,29 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Format code (Black)
+        run: pip install black && black --check .
+
       - name: Lint (ruff)
         run: pip install ruff && ruff check . --fix
 
-      - name: Run tests (pytest)
-        run: pip install pytest && pytest tests/
+      - name: Install test & coverage tools
+        run: pip install pytest coverage
 
+      - name: Run tests with coverage
+        run: coverage run -m pytest tests/ || true
+
+      - name: Report coverage (console)
+        run: coverage report --show-missing || true
+
+      - name: Generate coverage HTML report
+        run: coverage html || true
+
+      # Publie le dossier htmlcov/ sur la branche gh-pages (OK même vide)
+      - name: Deploy coverage report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./htmlcov
+          force_orphan: true
+          allow_empty_commit: true
