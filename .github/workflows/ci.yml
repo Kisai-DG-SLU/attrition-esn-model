@@ -45,10 +45,17 @@ jobs:
           ls -lR ./htmlcov
           pwd
 
-      # Publie le dossier htmlcov/ sur la branche gh-pages (OK même vide)
+      # --- Correction pour publication sur gh-pages ----
+      - name: Préparation dossier publication coverage
+        run: |
+          rm -rf public_htmlcov
+          cp -r htmlcov public_htmlcov
+
+      - name: Debug dossier publication
+        run: ls -lR public_htmlcov
+
       - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./htmlcov
-          force_orphan: true
