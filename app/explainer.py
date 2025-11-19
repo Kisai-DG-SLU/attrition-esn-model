@@ -7,6 +7,7 @@ from app.model import booster
 
 explainer = shap.Explainer(booster)
 
+
 def explain_prediction(features_dict):
     features = np.array([list(features_dict.values())])
     shap_values = explainer(features)
@@ -18,4 +19,3 @@ def explain_prediction(features_dict):
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode()
     return img_base64  # Peut aussi renvoyer d'autres infos/explains
-

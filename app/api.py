@@ -5,9 +5,11 @@ from app.explainer import explain_prediction
 
 router = APIRouter()
 
+
 @router.get("/health")
 def healthcheck():
     return {"status": "ok"}
+
 
 @router.post("/predict")
 def predict(employee_id: int):
@@ -16,8 +18,4 @@ def predict(employee_id: int):
         raise HTTPException(status_code=404, detail="Employé non trouvé")
     score = predict_attrition(features)
     explanation = explain_prediction(features)
-    return {
-        "score": score,
-        "explanation": explanation
-    }
-
+    return {"score": score, "explanation": explanation}
