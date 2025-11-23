@@ -19,3 +19,4 @@ dependencies:
   - python-dotenv
   - jupyterlab
   - ipython
+  - black

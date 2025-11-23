@@ -6,7 +6,8 @@ import os
 import shap
 from sqlalchemy import create_engine
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -29,7 +30,9 @@ DB_TYPE = os.getenv("DB_TYPE", "postgresql")  # Pour switcher postgres/sqlite si
 
 # Construction dynamique de la chaîne de connexion
 if DB_TYPE == "sqlite":
-    DB_CONNECT = f"sqlite:///{db_name}"  # db_name = chemin local vers le fichier .sqlite
+    DB_CONNECT = (
+        f"sqlite:///{db_name}"  # db_name = chemin local vers le fichier .sqlite
+    )
 else:
     DB_CONNECT = f"postgresql+psycopg2://{user}:{pwd}@{db_host}:{db_port}/{db_name}"
 
@@ -38,11 +41,14 @@ engine = create_engine(DB_CONNECT)
 app = FastAPI(
     title="API Attrition Demo",
     description=f"Swagger FastAPI + accès BDD via SQLAlchemy [{ENV}]",
-    version="1.0"
+    version="1.0",
 )
 
-model_path = os.path.join(os.path.dirname(__file__), "..", "models", "model_pipeline.joblib")
+model_path = os.path.join(
+    os.path.dirname(__file__), "..", "models", "model_pipeline.joblib"
+)
 model_pipeline = joblib.load(model_path)
+
 
 def get_raw_employee(id_employee):
     query = f"SELECT * FROM raw WHERE id_employee = {id_employee};"
@@ -51,6 +57,7 @@ def get_raw_employee(id_employee):
         return None
     return df_emp.iloc[0]
 
+
 def predict_core(id_employee):
     emp_row = get_raw_employee(id_employee)
     if emp_row is None:
@@ -58,8 +65,8 @@ def predict_core(id_employee):
 
     # Préparation de la ligne pour le modèle
     emp_features = emp_row.to_dict()
-    emp_features.pop('id_employee', None)
-    emp_features.pop('attrition_num', None)
+    emp_features.pop("id_employee", None)
+    emp_features.pop("attrition_num", None)
     X_row = pd.DataFrame([emp_features])
 
     score = float(model_pipeline.predict_proba(X_row)[0][1])
@@ -83,10 +90,10 @@ def predict_core(id_employee):
     plt.clf()
     shap.plots.waterfall(shap_explanation, show=False)
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight')
+    plt.savefig(buf, format="png", bbox_inches="tight")
     plt.close()
     buf.seek(0)
-    img_b64 = base64.b64encode(buf.read()).decode('utf-8')
+    img_b64 = base64.b64encode(buf.read()).decode("utf-8")
     contribs = dict(zip(feature_names, shap_explanation.values.tolist()))
     print("Valeurs SHAP réelles :", shap_explanation.values)
     print("Contributions SHAP :", contribs)
@@ -97,23 +104,28 @@ def predict_core(id_employee):
         "donnees_brutes": emp_row.to_dict(),
         "id_employee": id_employee,
         "shap_waterfall": contribs,
-        "shap_waterfall_img": img_b64
+        "shap_waterfall_img": img_b64,
     }
+
 
 @app.get("/predict/")
 def predict(id_employee: int = Query(...)):
     return predict_core(id_employee)
 
+
 class EmployeeRequest(BaseModel):
     id_employee: int
+
 
 @app.post("/predict/")
 def predict_post(payload: EmployeeRequest):
     return predict_core(payload.id_employee)
 
+
 @app.get("/health")
 def health():
     return {"status": "ok", "version": "1.0", "env": ENV}
+
 
 @app.get("/employee_list")
 def employee_list():
