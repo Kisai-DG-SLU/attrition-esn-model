@@ -4,10 +4,13 @@ import base64
 import io
 from PIL import Image
 import pandas as pd
+import json
 
 FASTAPI_URL = "http://localhost:8000/predict/"
 EMPLOYEE_LIST_URL = "http://localhost:8000/employee_list"
 HEALTH_URL = "http://localhost:8000/health"
+FASTAPI_LOG_URL = "http://localhost:8000/log_sample"
+
 
 # Initialisation de la liste à vide
 all_ids = []
@@ -163,6 +166,43 @@ def check_health():
     )
 
 
+def fetch_log_sample(table_name):
+    try:
+        resp = requests.get(
+            FASTAPI_LOG_URL, params={"table": table_name, "n": 3}, timeout=5
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, dict) and data.get("error"):
+                return pd.DataFrame([[data["error"]]], columns=["Erreur"])
+            df = pd.DataFrame(data)
+            # Stringify les objets dict/list en JSON pretty-printé
+            for col in df.columns:
+                # Si une des valeurs de la colonne est un dict ou une list,
+                # alors on convertit tout en texte (pour éviter [object Object])
+                if df[col].apply(lambda x: isinstance(x, (dict, list))).any():
+                    df[col] = df[col].apply(
+                        lambda x: (
+                            json.dumps(x, indent=2, ensure_ascii=False)
+                            if isinstance(x, (dict, list))
+                            else x
+                        )
+                    )
+            return df
+        else:
+            return pd.DataFrame([["Erreur API"]], columns=["Erreur"])
+    except Exception as e:
+        return pd.DataFrame([[str(e)]], columns=["Erreur"])
+
+
+def refresh_logs():
+    return (
+        fetch_log_sample("model_input"),
+        fetch_log_sample("model_output"),
+        fetch_log_sample("api_log"),
+    )
+
+
 with gr.Blocks() as demo:
     health_banner = gr.HTML("Cliquez sur le bouton pour vérifier l'état de l'API.")
     refresh_btn = gr.Button("Vérifier l'état de l'API")
@@ -207,6 +247,29 @@ with gr.Blocks() as demo:
         inputs=[],
         outputs=[health_banner, search_box, id_table, id_textbox, pred_btn],
     )
+
+    with gr.Tab("Logs API"):
+        logs_input = gr.Dataframe(
+            value=fetch_log_sample("model_input"),
+            label="model_input (3 dernières lignes)",
+            interactive=False,
+        )
+        logs_output = gr.Dataframe(
+            value=fetch_log_sample("model_output"),
+            label="model_output (3 dernières lignes)",
+            interactive=False,
+        )
+        logs_api = gr.Dataframe(
+            value=fetch_log_sample("api_log"),
+            label="api_log (3 dernières lignes)",
+            interactive=False,
+        )
+        refresh_btn_logs = gr.Button("Rafraîchir logs")
+        # Associe bouton et update des 3 tables :
+        refresh_btn_logs.click(
+            refresh_logs, inputs=[], outputs=[logs_input, logs_output, logs_api]
+        )
+
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)
