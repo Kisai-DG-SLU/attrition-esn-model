@@ -1,28 +1,21 @@
-name: mlpy310
+name: attrition-esn-env
 channels:
   - conda-forge
 dependencies:
   - python=3.10
-  - numpy
   - pandas
+  - numpy
   - matplotlib
   - seaborn
+  - shap=0.45.0
   - scikit-learn
   - imbalanced-learn
   - xgboost=2.0.3
-  - shap=0.45.0
-  - jupyterlab
-  - ipykernel
+  - joblib
   - fastapi
   - uvicorn
-  - pydantic
   - sqlalchemy
-  - sqlite
   - psycopg2
-  - pytest
-  - pytest-cov
-  - httpx
-  - pytest-asyncio
-  - pip
-  - pip:
-      - huggingface_hub
+  - python-dotenv
+  - jupyterlab
+  - ipython

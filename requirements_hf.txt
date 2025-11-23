@@ -1,7 +1,15 @@
 fastapi
 uvicorn
-xgboost==2.0.3
-shap==0.45.0
+gradio
 sqlalchemy
 pandas
+joblib
+shap==0.45.0
+xgboost==2.0.3
 matplotlib
+python-dotenv
+requests
+pydantic
+scikit-learn
+numpy==1.26.4
+imbalanced-learn==0.14.0

@@ -1,17 +1,19 @@
-# Dépendances pour l'API FastAPI
-fastapi
-uvicorn
-
-# Machine Learning
-scikit-learn
 pandas
-numpy
-xgboost==2.0.3
-
-# Rééquilibrage des classes (SMOTE)
-imbalanced-learn
-
-# Interprétabilité (graphes waterfall SHAP)
-shap==0.45.0
 matplotlib
-
+seaborn
+shap==0.45.0
+xgboost==2.0.3
+joblib
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+python-dotenv
+jupyterlab
+ipython
+fastapi
+gradio
+requests
+pydantic
+scikit-learn
+numpy==1.26.4
+imbalanced-learn==0.14.0
