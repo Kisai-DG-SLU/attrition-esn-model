@@ -40,9 +40,6 @@ jobs:
       - name: Generate coverage HTML report
         run: coverage html
 
-      - name: Déploiement Github Pages natif
-        uses: actions/configure-pages@v3
-
       - name: Upload HTML coverage
         uses: actions/upload-pages-artifact@v2
         with:
