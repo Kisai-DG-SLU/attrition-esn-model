@@ -43,9 +43,17 @@ jobs:
       - name: Vérification contenu coverage HTML
         run: ls -lR ./htmlcov
 
+      - name: Copie htmlcov dans le workspace root (sécurité)
+        run: |
+          mkdir -p ${{ github.workspace }}/htmlcov
+          cp -r ./htmlcov/* ${{ github.workspace }}/htmlcov/
+
+      - name: Vérification après copie
+        run: ls -lR ${{ github.workspace }}/htmlcov
+
       - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./htmlcov
+          publish_dir: ${{ github.workspace }}/htmlcov
           force_orphan: true
