@@ -40,17 +40,9 @@ jobs:
       - name: Generate coverage HTML report
         run: coverage html
 
-      - name: Vérification contenu coverage HTML
-        run: ls -lR ./htmlcov
-
-      - name: Vérification workspace
-        run: ls -lR ${{ github.workspace }}/htmlcov
-
       - name: Deploy coverage report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        env:
-          ACTIONS_STEP_DEBUG: true
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ github.workspace }}/htmlcov
+          publish_dir: ./htmlcov
           force_orphan: true
