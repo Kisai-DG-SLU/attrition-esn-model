@@ -40,9 +40,15 @@ jobs:
       - name: Generate coverage HTML report
         run: coverage html
 
-      - name: Deploy coverage report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Déploiement Github Pages natif
+        uses: actions/configure-pages@v3
+
+      - name: Upload HTML coverage
+        uses: actions/upload-pages-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./htmlcov
-          force_orphan: true
+          path: ./htmlcov
+
+      - name: Déployer sur Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
+        
