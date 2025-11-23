@@ -43,12 +43,7 @@ jobs:
       - name: Vérification contenu coverage HTML
         run: ls -lR ./htmlcov
 
-      - name: Copie htmlcov dans le workspace root (sécurité)
-        run: |
-          mkdir -p ${{ github.workspace }}/htmlcov
-          cp -r ./htmlcov/* ${{ github.workspace }}/htmlcov/
-
-      - name: Vérification après copie
+      - name: Vérification workspace
         run: ls -lR ${{ github.workspace }}/htmlcov
 
       - name: Deploy coverage report to GitHub Pages
