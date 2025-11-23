@@ -49,6 +49,7 @@ model_path = os.path.join(
 )
 model_pipeline = joblib.load(model_path)
 
+
 def get_raw_employee(id_employee):
     query = text("SELECT * FROM raw WHERE id_employee = :id")
     df_emp = pd.read_sql(query, engine, params={"id": id_employee})
@@ -56,6 +57,7 @@ def get_raw_employee(id_employee):
     if df_emp.empty:
         return None
     return df_emp.iloc[0]
+
 
 def predict_core(id_employee):
     emp_row = get_raw_employee(id_employee)
@@ -106,20 +108,25 @@ def predict_core(id_employee):
         "shap_waterfall_img": img_b64,
     }
 
+
 @app.get("/predict/")
 def predict(id_employee: int = Query(...)):
     return predict_core(id_employee)
 
+
 class EmployeeRequest(BaseModel):
     id_employee: int
+
 
 @app.post("/predict/")
 def predict_post(payload: EmployeeRequest):
     return predict_core(payload.id_employee)
 
+
 @app.get("/health")
 def health():
     return {"status": "ok", "version": "1.0", "env": ENV}
+
 
 @app.get("/employee_list")
 def employee_list():
