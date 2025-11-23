@@ -250,11 +250,12 @@ def log_sample(
 ):
     if table not in {"model_input", "model_output", "api_log"}:
         return {"error": "Table inconnue"}
-    query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT {n}"
+    query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT :limit"
     try:
         with engine.connect() as conn:
-            df = pd.read_sql(query, conn)
+            df = pd.read_sql(query, conn, params={"limit": n})
         # Conversion propre
         return df.head(n).to_dict(orient="records")
     except Exception as e:
-        return {"error": str(e)}
+        print(f"Exception in log_sample: {e}")
+        return {"error": "Erreur interne du serveur"}
