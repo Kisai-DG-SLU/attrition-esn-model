@@ -1,28 +1,53 @@
+name: CI (tests + lint + coverage)
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Format code (Black)
+        run: pip install black && black --check .
+
+      - name: Lint (ruff)
+        run: pip install ruff && ruff check . --fix
+
       - name: Install test & coverage tools
         run: pip install pytest coverage
+
       - name: Run tests with coverage
         run: coverage run -m pytest tests/
+
+      - name: Report coverage (console)
+        run: coverage report --show-missing
+
       - name: Generate coverage HTML report
         run: coverage html
-      - name: Upload HTML coverage
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ./htmlcov
 
-  # Job séparé pour le déploiement Pages
-  deploy-pages:
-    runs-on: ubuntu-latest
-    needs: build-and-test # trigger après le job test
-    steps:
-      - uses: actions/deploy-pages@v4
+      - name: Déploiement HTML coverage manuel sur gh-pages
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git fetch origin gh-pages || true
+          git checkout --orphan gh-pages
+          git rm -rf .
+          cp -r htmlcov/* .
+          git add .
+          git commit -m "Auto deploy coverage [skip ci]" || true
+          git push origin gh-pages --force
