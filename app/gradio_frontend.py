@@ -48,13 +48,13 @@ def match_and_sum_shap(raw_features, shap_contribs):
                 if sk_clean == base_feat:
                     try:
                         shap_sum += float(v)
-                    except:
+                    except (ValueError, TypeError):
                         continue
             else:
                 if sk_clean.startswith(base_feat):
                     try:
                         shap_sum += float(v)
-                    except:
+                    except (ValueError, TypeError):
                         continue
         if shap_sum > 0.001:
             exp = "⚠️"
