@@ -132,21 +132,18 @@ def test_log_model_input_other_dialect(monkeypatch):
 
 
 def test_predict_core_real_pipeline(monkeypatch):
+    import numpy as np
+
     # -- Mock de get_raw_employee --
     class DummyRow:
         def to_dict(self):
-            # Fictif jeu de features (2 features pour test)
             return {"id_employee": 1, "attrition_num": 0, "age": 45, "salaire": 2200}
 
     monkeypatch.setattr("app.api.get_raw_employee", lambda _id: DummyRow())
 
     # -- Mock pipeline, preprocessor, estimator --
     dummy_preproc = MagicMock()
-    dummy_preproc.transform.return_value = np.array(
-        [[0.42, 3.14]]
-    )  # Ici l'array numpy !
-
-    # Pour tester le branch `if hasattr(preprocessor, "get_feature_names_out")`
+    dummy_preproc.transform.return_value = np.array([[0.42, 3.14]])
     dummy_preproc.get_feature_names_out.return_value = ["age", "salaire"]
 
     dummy_estimator = MagicMock()
@@ -154,7 +151,6 @@ def test_predict_core_real_pipeline(monkeypatch):
     dummy_shap_explanation = MagicMock()
     dummy_shap_explanation.values.tolist.return_value = [0.5, -0.2]
     dummy_shap_values = [dummy_shap_explanation]
-
     dummy_explainer = MagicMock(return_value=dummy_shap_values)
     dummy_plt = MagicMock()
     dummy_buf = MagicMock()
@@ -164,10 +160,10 @@ def test_predict_core_real_pipeline(monkeypatch):
 
     with patch("app.api.model_pipeline") as mp:
         mp.named_steps = {"preprocessor": dummy_preproc, "estimator": dummy_estimator}
-        mp.predict_proba.return_value = [[0.4, 0.6]]  # "OUI"
+        mp.predict_proba.return_value = [[0.4, 0.6]]
         mp.__class__.__name__ = "NotDummyModel"
-        with patch("app.api.shap.TreeExplainer", return_value=dummy_explainer):
-            with patch("app.api.shap.plots.waterfall", return_value=None):
+        with patch("shap.TreeExplainer", return_value=dummy_explainer):
+            with patch("shap.plots.waterfall", return_value=None):
                 with patch("app.api.plt", dummy_plt):
                     with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
                         with patch("app.api.base64", dummy_base64):
@@ -188,8 +184,8 @@ def test_predict_core_real_pipeline(monkeypatch):
         mp.named_steps = {"preprocessor": dummy_preproc, "estimator": dummy_estimator}
         mp.predict_proba.return_value = [[0.4, 0.6]]
         mp.__class__.__name__ = "NotDummyModel"
-        with patch("app.api.shap.TreeExplainer", return_value=dummy_explainer):
-            with patch("app.api.shap.plots.waterfall", return_value=None):
+        with patch("shap.TreeExplainer", return_value=dummy_explainer):
+            with patch("shap.plots.waterfall", return_value=None):
                 with patch("app.api.plt", dummy_plt):
                     with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
                         with patch("app.api.base64", dummy_base64):
