@@ -1,9 +1,11 @@
 import pytest
 import os
+
 os.environ["MODEL_MOCK"] = "1"
 from sqlalchemy import create_engine, text
 from app.api import app
 from fastapi.testclient import TestClient
+
 
 @pytest.fixture(scope="module")
 def test_db(tmp_path_factory):
