@@ -1,4 +1,4 @@
-import pytest
+# pytest est import depuis conftest.py
 
 def test_health(client):
     """Teste le endpoint /health (retour OK, version, env connus)."""
