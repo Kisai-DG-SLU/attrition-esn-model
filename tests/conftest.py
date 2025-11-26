@@ -85,7 +85,9 @@ def test_db(tmp_path_factory):
                 conn.execute(text(stmt))
 
         # Table raw (2 employés)
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
         INSERT INTO raw (
             id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
             annee_experience_totale, annees_dans_l_entreprise, annees_dans_le_poste_actuel,
@@ -107,7 +109,9 @@ def test_db(tmp_path_factory):
             2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
             'Moyen', 'Moyen', 'Haut', 'Haut', 'Haut', 'Haut', 'Célibataire', 'Eco', 'HR', 'F', 'Oui', 'Oui', 1
         )
-    """))
+    """
+            )
+        )
 
         # Table model_input
         conn.execute(
