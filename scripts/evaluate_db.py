@@ -18,80 +18,45 @@ engine = create_engine(
 
 tables = ["raw", "model_input", "model_output", "api_log"]
 
-# Vérification du contenu de chaque table
+# Vérification/aperçu contenu tables
 for table in tables:
     print(f"\n\n===== TABLE : {table.upper()} =====")
     try:
-        query = f"SELECT * FROM {table} LIMIT 5;"
-        df = pd.read_sql(query, engine)
-        print(f"\n--- HEAD ({table}) ---")
+        df = pd.read_sql(f"SELECT * FROM {table} LIMIT 5;", engine)
         print(df.head())
-        print(f"\n--- INFO ({table}) ---")
         print(df.info())
     except (ProgrammingError, OperationalError) as e:
         print(f"Table '{table}' non accessible ou n'existe pas : {e}")
     except Exception as e:
-        print(f"Erreur inattendue sur '{table}': {e}")
+        print(f"Erreur inattendue avec '{table}': {e}")
 
-# Vérification des clés primaires
-query_pk = """
-SELECT
-    tc.table_name, 
-    kcu.column_name
-FROM
-    information_schema.table_constraints AS tc
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-     AND tc.table_schema = kcu.table_schema
-WHERE tc.constraint_type = 'PRIMARY KEY'
-  AND tc.table_schema = 'public';
-"""
-print("\n\n=== CLÉS PRIMAIRES ===")
+# Export complet de RAW au format CSV
 try:
-    df_pk = pd.read_sql(query_pk, engine)
-    print(df_pk)
+    df_full = pd.read_sql("SELECT * FROM raw", engine)
+    df_full.to_csv("raw_full.csv", index=False)
+    print("Export complet terminé : raw_full.csv")
 except Exception as e:
-    print(f"Erreur lors de l'inspection PK: {e}")
+    print(f"Erreur export complet: {e}")
 
-# Vérification des clés étrangères
-query_fk = """
-SELECT
-    tc.table_name, 
-    kcu.column_name, 
-    ccu.table_name AS foreign_table_name,
-    ccu.column_name AS foreign_column_name 
-FROM 
-    information_schema.table_constraints AS tc 
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-     AND tc.table_schema = kcu.table_schema
-    JOIN information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-     AND ccu.table_schema = tc.table_schema
-WHERE tc.constraint_type = 'FOREIGN KEY'
-  AND tc.table_schema = 'public';
-"""
-print("\n\n=== CLÉS ÉTRANGÈRES ===")
-try:
-    df_fk = pd.read_sql(query_fk, engine)
-    print(df_fk)
-except Exception as e:
-    print(f"Erreur lors de l'inspection FK: {e}")
-
-# Vérification des index
-query_idx = """
-SELECT 
-    tablename, 
-    indexname, 
-    indexdef 
-FROM 
-    pg_indexes 
-WHERE 
-    schemaname = 'public';
-"""
-print("\n\n=== INDEX ===")
-try:
-    df_idx = pd.read_sql(query_idx, engine)
-    print(df_idx)
-except Exception as e:
-    print(f"Erreur lors de l'inspection des index: {e}")
+# Affiche les modalités de chaque colonne catégorielle
+cat_cols = [
+    "frequence_deplacement",
+    "salaire_cat",
+    "salaire_cat_eq",
+    "position_salaire_poste",
+    "position_salaire_poste_anc",
+    "score_carriere_cat",
+    "indice_evol_cat",
+    "statut_marital",
+    "domaine_etude",
+    "poste_departement",
+    "genre",
+    "heure_supplementaires",
+    "nouveau_responsable",
+]
+for col in cat_cols:
+    try:
+        vals = pd.read_sql(f"SELECT DISTINCT {col} FROM raw", engine)[col].tolist()
+        print(f"{col}: {vals}")
+    except Exception as e:
+        print(f"Erreur valorisation {col}: {e}")

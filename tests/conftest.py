@@ -1,16 +1,16 @@
 import pytest
 import os
-
-os.environ["MODEL_MOCK"] = "1"
-from sqlalchemy import create_engine, text
-from app.api import app
-from fastapi.testclient import TestClient
+import tempfile
 
 
 @pytest.fixture(scope="module")
 def test_db(tmp_path_factory):
     db_path = tmp_path_factory.mktemp("data") / "test.sqlite"
+    os.environ["DB_TYPE"] = "sqlite"
+    os.environ["DB_NAME"] = str(db_path)
+    os.environ["MODEL_MOCK"] = "1"
     db_url = f"sqlite:///{db_path}"
+    from sqlalchemy import create_engine, text
 
     engine = create_engine(db_url, connect_args={"check_same_thread": False})
 
@@ -79,7 +79,7 @@ def test_db(tmp_path_factory):
     );
     """
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         for stmt in schema.strip().split(";"):
             if stmt.strip():
                 conn.execute(text(stmt))
@@ -88,8 +88,8 @@ def test_db(tmp_path_factory):
         conn.execute(
             text(
                 """
-        INSERT INTO raw (
-            id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
+        INSERT INTO raw
+            (id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
             annee_experience_totale, annees_dans_l_entreprise, annees_dans_le_poste_actuel,
             satisfaction_employee_environnement, note_evaluation_actuelle, note_evaluation_precedente,
             niveau_hierarchique_poste, satisfaction_employee_nature_travail, satisfaction_employee_equipe,
@@ -99,17 +99,14 @@ def test_db(tmp_path_factory):
             indice_evolution_salaire, frequence_deplacement, salaire_cat, salaire_cat_eq,
             position_salaire_poste, position_salaire_poste_anc, score_carriere_cat, indice_evol_cat,
             statut_marital, domaine_etude, poste_departement, genre, heure_supplementaires,
-            nouveau_responsable, attrition_num
-        ) VALUES
-        (
-            1, 30, 3000, 3, 7, 5, 2, 4, 5, 3, 1, 3, 4, 4, 1, 1, 10, 2, 1, 2, 1, 0.5, 0.1, 'Rare',
-            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0
-        ),
-        (
-            2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
-            'Moyen', 'Moyen', 'Haut', 'Haut', 'Haut', 'Haut', 'Célibataire', 'Eco', 'HR', 'F', 'Oui', 'Oui', 1
-        )
-    """
+            nouveau_responsable, attrition_num) VALUES
+            (1, 35, 3200, 2, 7, 3, 2, 4, 5, 3, 1, 3, 4, 4, 0, 2, 10, 2, 1, 2, 1, 0.5, 0.1, 'Occasionnel',
+            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Marié(e)', 'Infra & Cloud', 'Consultant_Consulting',
+            'M', 'Oui', 'Non', 0),
+            (2, 41, 5000, 5, 10, 8, 4, 3, 4, 2, 2, 3, 3, 3, 1, 3, 15, 3, 2, 3, 2, 0.7, 0.3, 'Frequent',
+            'Haut', 'Haut', 'Haut', 'Haut', 'Très bas', 'Très bas', 'Célibataire', 'Marketing', 'Tech Lead_Consulting',
+            'F', 'Non', 'Oui', 1)
+        """
             )
         )
 
@@ -147,13 +144,17 @@ def test_db(tmp_path_factory):
             )
         )
 
-    os.environ["DBTYPE"] = "sqlite"
-    os.environ["DBNAME"] = str(db_path)
+    from app.api import set_engine_for_tests
+
+    set_engine_for_tests(engine)
 
     yield engine
 
 
 @pytest.fixture(scope="module")
 def client(test_db):
+    from app.api import app
+    from fastapi.testclient import TestClient
+
     with TestClient(app) as test_client:
         yield test_client
