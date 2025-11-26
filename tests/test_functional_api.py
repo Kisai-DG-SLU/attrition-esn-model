@@ -1,4 +1,4 @@
-# pytest est import depuis conftest.py
+from unittest.mock import patch
 
 
 def test_health(client):
@@ -96,3 +96,10 @@ def test_log_sample_table_inconnue(client):
     resp = client.get("/log_sample", params={"table": "tablebidon"})
     assert resp.status_code == 200
     assert resp.json().get("error") == "Table inconnue"
+
+
+def test_predict_generic_error(client):
+    # Patch predict_core pour lever Exception et générer un 500
+    with patch("app.api.predict_core", side_effect=Exception("Erreur test")):
+        resp = client.get("/predict", params={"id_employee": 1})
+        assert resp.status_code == 500

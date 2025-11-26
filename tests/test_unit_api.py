@@ -1,3 +1,6 @@
+import os
+import sys
+import importlib
 import pytest
 from fastapi import HTTPException
 from app.api import (
@@ -6,6 +9,7 @@ from app.api import (
     log_api_event,
     get_raw_employee,
     predict_core,
+    get_engine,
 )
 
 
@@ -82,3 +86,43 @@ def test_predict_core():
     assert "shap_waterfall_img" in résultat
     assert "id_employee" in résultat
     assert résultat["id_employee"] == 1
+
+
+def test_get_engine_role_inconnu():
+    with pytest.raises(ValueError):
+        get_engine("unknownrole")
+
+
+def test_fallback_model_env(monkeypatch):
+    monkeypatch.setenv("MODEL_MOCK", "1")
+    # Forcer la réimportation pour relancer l'init avec la bonne env
+    if "app.api" in sys.modules:
+        del sys.modules["app.api"]
+    import app.api  # noqa: F401
+
+
+# Pour la branche logging non-sqlite, un exemple possible selon ton implémentation :
+def test_log_model_input_other_dialect(monkeypatch):
+    from app import api
+
+    class FakeEngine:
+        dialect = type("D", (), {"name": "postgresql"})()
+
+        def connect(self):
+            return self
+
+        def begin(self):
+            return self
+
+        def execute(self, stmt, *args, **kwargs):
+            return None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            return None
+
+    monkeypatch.setattr(api, "engine", FakeEngine())
+    # Normalement log_model_input doit passer la branche SQL non sqlite
+    api.log_model_input({"id_employee": 1})
