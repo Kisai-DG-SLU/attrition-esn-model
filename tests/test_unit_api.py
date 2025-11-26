@@ -165,8 +165,8 @@ def test_predict_core_real_pipeline(monkeypatch):
         with patch("shap.TreeExplainer", return_value=dummy_explainer):
             with patch("shap.plots.waterfall", return_value=None):
                 with patch("matplotlib.pyplot", dummy_plt):
-                    with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
-                        with patch("app.api.base64", dummy_base64):
+                    with patch("io.BytesIO", lambda: dummy_buf):
+                        with patch("base64.b64encode", dummy_base64.b64encode):
                             import app.api
 
                             res = app.api.predict_core(1)
@@ -187,8 +187,8 @@ def test_predict_core_real_pipeline(monkeypatch):
         with patch("shap.TreeExplainer", return_value=dummy_explainer):
             with patch("shap.plots.waterfall", return_value=None):
                 with patch("matplotlib.pyplot", dummy_plt):
-                    with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
-                        with patch("app.api.base64", dummy_base64):
+                    with patch("io.BytesIO", lambda: dummy_buf):
+                        with patch("base64.b64encode", dummy_base64.b64encode):
                             import app.api
 
                             res2 = app.api.predict_core(1)
