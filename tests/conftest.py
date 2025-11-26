@@ -85,31 +85,29 @@ def test_db(tmp_path_factory):
                 conn.execute(text(stmt))
 
         # Table raw (2 employés)
-        conn.execute(
-            text(
-                """
-            INSERT INTO raw (
-                id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
-                annee_experience_totale, annees_dans_l_entreprise,
-                annees_dans_le_poste_actuel, satisfaction_employee_environnement,
-                note_evaluation_actuelle, note_evaluation_precedente,
-                niveau_hierarchique_poste, satisfaction_employee_nature_travail,
-                satisfaction_employee_equipe, satisfaction_employee_equilibre_pro_perso,
-                nombre_participation_pee, nb_formations_suivies, distance_domicile_travail,
-                niveau_education, annees_depuis_la_derniere_promotion,
-                annes_sous_responsable_actuel, augmentation_salaire_precedente,
-                score_evolution_carriere, indice_evolution_salaire, frequence_deplacement,
-                salaire_cat, salaire_cat_eq, position_salaire_poste, position_salaire_poste_anc,
-                score_carriere_cat, indice_evol_cat, statut_marital, domaine_etude,
-                poste_departement, genre, heure_supplementaires, nouveau_responsable, attrition_num
-            ) VALUES
-            (1, 30, 3000, 3, 7, 5, 2, 4, 5, 3, 1, 3, 4, 4, 1, 1, 10, 2, 1, 2, 1, 0.5, 0.1, 'Rare',
-            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0),
-            (2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
-            'Moyen', 'Moyen', 'Haut', 'Haut', 'Haut', 'Célibataire', 'Eco', 'HR', 'F', 'Oui', 'Oui', 1)
-        """
-            )
+        conn.execute(text("""
+        INSERT INTO raw (
+            id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
+            annee_experience_totale, annees_dans_l_entreprise, annees_dans_le_poste_actuel,
+            satisfaction_employee_environnement, note_evaluation_actuelle, note_evaluation_precedente,
+            niveau_hierarchique_poste, satisfaction_employee_nature_travail, satisfaction_employee_equipe,
+            satisfaction_employee_equilibre_pro_perso, nombre_participation_pee, nb_formations_suivies,
+            distance_domicile_travail, niveau_education, annees_depuis_la_derniere_promotion,
+            annes_sous_responsable_actuel, augmentation_salaire_precedente, score_evolution_carriere,
+            indice_evolution_salaire, frequence_deplacement, salaire_cat, salaire_cat_eq,
+            position_salaire_poste, position_salaire_poste_anc, score_carriere_cat, indice_evol_cat,
+            statut_marital, domaine_etude, poste_departement, genre, heure_supplementaires,
+            nouveau_responsable, attrition_num
+        ) VALUES
+        (
+            1, 30, 3000, 3, 7, 5, 2, 4, 5, 3, 1, 3, 4, 4, 1, 1, 10, 2, 1, 2, 1, 0.5, 0.1, 'Rare',
+            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0
+        ),
+        (
+            2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
+            'Moyen', 'Moyen', 'Haut', 'Haut', 'Haut', 'Haut', 'Célibataire', 'Eco', 'HR', 'F', 'Oui', 'Oui', 1
         )
+    """))
 
         # Table model_input
         conn.execute(
