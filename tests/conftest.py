@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, text
 from app.api import app
 from fastapi.testclient import TestClient
 
+
 @pytest.fixture(scope="module")
 def test_db(tmp_path_factory):
     db_path = tmp_path_factory.mktemp("data") / "test.sqlite"
@@ -80,9 +81,11 @@ def test_db(tmp_path_factory):
         for stmt in schema.strip().split(";"):
             if stmt.strip():
                 conn.execute(text(stmt))
-                
+
         # Table raw (2 employés)
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             INSERT INTO raw (
                 id_employee, age, revenu_mensuel, nombre_experiences_precedentes,
                 annee_experience_totale, annees_dans_l_entreprise,
@@ -102,37 +105,51 @@ def test_db(tmp_path_factory):
             'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0),
             (2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
             'Moyen', 'Moyen', 'Haut', 'Haut', 'Haut', 'Célibataire', 'Eco', 'HR', 'F', 'Oui', 'Oui', 1)
-        """))
+        """
+            )
+        )
 
         # Table model_input
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             INSERT INTO model_input (input_id, timestamp, payload) VALUES
             (101, '2025-11-25 14:22:00', '{"id_employee": 1, "age": 30}'),
             (102, '2025-11-25 14:25:01', '{"id_employee": 2, "age": 40}')
-        """))
+        """
+            )
+        )
 
         # Table model_output
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             INSERT INTO model_output (output_id, input_id, timestamp, prediction, model_version) VALUES
             (201, 101, '2025-11-25 14:24:18', '{"prediction": "OUI"}', '1.0'),
             (202, 102, '2025-11-25 14:26:38', '{"prediction": "NON"}', '1.0')
-        """))
+        """
+            )
+        )
 
         # Table api_log
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             INSERT INTO api_log (log_id, timestamp, event_type, request_payload, response_payload,
                 http_code, user_id, duration_ms, error_detail) VALUES
             (301, '2025-11-25 14:27:10', 'predict', '{"id_employee": 1}', '{"prediction": "OUI"}', 200, 'user1', 222, NULL),
             (302, '2025-11-25 14:28:01', 'predict', '{"id_employee": 2}', '{"prediction": "NON"}', 200, 'user2', 240, NULL)
-        """))
+        """
+            )
+        )
 
     os.environ["DBTYPE"] = "sqlite"
     os.environ["DBNAME"] = str(db_path)
 
     yield engine
 
+
 @pytest.fixture(scope="module")
 def client(test_db):
     with TestClient(app) as test_client:
         yield test_client
-
