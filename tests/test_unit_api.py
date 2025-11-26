@@ -1,7 +1,10 @@
 import os
+import numpy as np
 import sys
 import importlib
 import pytest
+import pandas as pd
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 from app.api import (
     log_model_input,
@@ -126,3 +129,74 @@ def test_log_model_input_other_dialect(monkeypatch):
     monkeypatch.setattr(api, "engine", FakeEngine())
     # Normalement log_model_input doit passer la branche SQL non sqlite
     api.log_model_input({"id_employee": 1})
+
+
+def test_predict_core_real_pipeline(monkeypatch):
+    # -- Mock de get_raw_employee --
+    class DummyRow:
+        def to_dict(self):
+            # Fictif jeu de features (2 features pour test)
+            return {"id_employee": 1, "attrition_num": 0, "age": 45, "salaire": 2200}
+
+    monkeypatch.setattr("app.api.get_raw_employee", lambda _id: DummyRow())
+
+    # -- Mock pipeline, preprocessor, estimator --
+    dummy_preproc = MagicMock()
+    dummy_preproc.transform.return_value = np.array(
+        [[0.42, 3.14]]
+    )  # Ici l'array numpy !
+
+    # Pour tester le branch `if hasattr(preprocessor, "get_feature_names_out")`
+    dummy_preproc.get_feature_names_out.return_value = ["age", "salaire"]
+
+    dummy_estimator = MagicMock()
+
+    dummy_shap_explanation = MagicMock()
+    dummy_shap_explanation.values.tolist.return_value = [0.5, -0.2]
+    dummy_shap_values = [dummy_shap_explanation]
+
+    dummy_explainer = MagicMock(return_value=dummy_shap_values)
+    dummy_plt = MagicMock()
+    dummy_buf = MagicMock()
+    dummy_buf.read.return_value = b"testimg"
+    dummy_base64 = MagicMock()
+    dummy_base64.b64encode.return_value.decode.return_value = "imgb64"
+
+    with patch("app.api.model_pipeline") as mp:
+        mp.named_steps = {"preprocessor": dummy_preproc, "estimator": dummy_estimator}
+        mp.predict_proba.return_value = [[0.4, 0.6]]  # "OUI"
+        mp.__class__.__name__ = "NotDummyModel"
+        with patch("app.api.shap.TreeExplainer", return_value=dummy_explainer):
+            with patch("app.api.shap.plots.waterfall", return_value=None):
+                with patch("app.api.plt", dummy_plt):
+                    with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
+                        with patch("app.api.base64", dummy_base64):
+                            import app.api
+
+                            res = app.api.predict_core(1)
+                            assert res["prediction"] == "OUI"
+                            assert res["score"] == 0.6
+                            assert "shap_waterfall_img" in res
+                            assert res["shap_waterfall"] == {
+                                "age": 0.5,
+                                "salaire": -0.2,
+                            }
+
+    # Variante pour le else (pas de get_feature_names_out)
+    del dummy_preproc.get_feature_names_out
+    with patch("app.api.model_pipeline") as mp:
+        mp.named_steps = {"preprocessor": dummy_preproc, "estimator": dummy_estimator}
+        mp.predict_proba.return_value = [[0.4, 0.6]]
+        mp.__class__.__name__ = "NotDummyModel"
+        with patch("app.api.shap.TreeExplainer", return_value=dummy_explainer):
+            with patch("app.api.shap.plots.waterfall", return_value=None):
+                with patch("app.api.plt", dummy_plt):
+                    with patch("app.api.io", MagicMock(BytesIO=lambda: dummy_buf)):
+                        with patch("app.api.base64", dummy_base64):
+                            import app.api
+
+                            res2 = app.api.predict_core(1)
+                            assert list(res2["shap_waterfall"].keys()) == [
+                                "feat_0",
+                                "feat_1",
+                            ]
