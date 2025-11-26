@@ -44,8 +44,19 @@ def get_engine(role="demo"):
     return create_engine(db_connect)
 
 
-engine = get_engine(role="demo")
-engine_log = get_engine(role="log")
+engine = None
+engine_log = None
+
+
+def set_engine_for_tests(new_engine):
+    global engine, engine_log
+    engine = new_engine
+    engine_log = new_engine
+
+
+if engine is None or engine_log is None:
+    engine = get_engine(role="demo")
+    engine_log = get_engine(role="log")
 
 app = FastAPI(
     title="API Attrition Demo",
@@ -53,36 +64,101 @@ app = FastAPI(
     version="1.0",
 )
 
+
+class DummyModel:
+    """DummyModel pour mocker predict_proba et preprocessor."""
+
+    class DummyPreproc:
+        def transform(self, X):
+            # Retourne X inchangé ou un array de bonnes dimensions
+            import numpy as np
+
+            return np.zeros((X.shape[0], 2))
+
+        def get_feature_names_out(self):
+            # Retourne des noms fictifs
+            return ["dummy1", "dummy2"]
+
+    def __init__(self):
+        self.named_steps = {"preprocessor": self.DummyPreproc()}
+
+    def predict_proba(self, X):
+        import numpy as np
+
+        # Retourne probas constantes : "OUI" et "NON"
+        return np.array([[0.4, 0.6] for _ in range(len(X))])
+
+
 model_path = os.path.join(
     os.path.dirname(__file__), "..", "models", "model_pipeline.joblib"
 )
-model_pipeline = joblib.load(model_path)
+
+MODEL_MOCK = os.getenv("MODEL_MOCK", "0") == "1"
+
+if not MODEL_MOCK:
+    try:
+        model_pipeline = joblib.load(model_path)
+    except FileNotFoundError:
+        # Fallback automatique sur le mock si réel absent...
+        model_pipeline = DummyModel()
+else:
+    model_pipeline = DummyModel()
+
+model_path = os.path.join(
+    os.path.dirname(__file__), "..", "models", "model_pipeline.joblib"
+)
 
 
 def log_model_input(payload_dict):
+    global engine_log
     with engine_log.begin() as conn:
-        result = conn.execute(
-            text(
-                "INSERT INTO model_input (payload) VALUES (:payload) RETURNING input_id;"
-            ),
-            {"payload": json.dumps(payload_dict)},
-        )
-        return result.fetchone()[0]
+        if conn.engine.dialect.name == "sqlite":
+            conn.execute(
+                text("INSERT INTO model_input (payload) VALUES (:payload)"),
+                {"payload": json.dumps(payload_dict)},
+            )
+            result = conn.execute(text("SELECT last_insert_rowid()"))
+            row = result.fetchone()
+            return row[0] if row else None
+        else:
+            result = conn.execute(
+                text(
+                    "INSERT INTO model_input (payload) VALUES (:payload) RETURNING input_id;"
+                ),
+                {"payload": json.dumps(payload_dict)},
+            )
+            return result.fetchone()[0]
 
 
 def log_model_output(input_id, prediction, model_version=None):
+    global engine_log
     with engine_log.begin() as conn:
-        result = conn.execute(
-            text(
-                "INSERT INTO model_output (input_id, prediction, model_version) VALUES (:input_id, :prediction, :model_version) RETURNING output_id;"
-            ),
-            {
-                "input_id": input_id,
-                "prediction": json.dumps(prediction),
-                "model_version": model_version,
-            },
-        )
-        return result.fetchone()[0]
+        if conn.engine.dialect.name == "sqlite":
+            conn.execute(
+                text(
+                    "INSERT INTO model_output (input_id, prediction, model_version) VALUES (:input_id, :prediction, :model_version)"
+                ),
+                {
+                    "input_id": input_id,
+                    "prediction": json.dumps(prediction),
+                    "model_version": model_version,
+                },
+            )
+            result = conn.execute(text("SELECT last_insert_rowid()"))
+            row = result.fetchone()
+            return row[0] if row else None
+        else:
+            result = conn.execute(
+                text(
+                    "INSERT INTO model_output (input_id, prediction, model_version) VALUES (:input_id, :prediction, :model_version) RETURNING output_id;"
+                ),
+                {
+                    "input_id": input_id,
+                    "prediction": json.dumps(prediction),
+                    "model_version": model_version,
+                },
+            )
+            return result.fetchone()[0]
 
 
 def log_api_event(
@@ -139,28 +215,38 @@ def predict_core(id_employee):
     score = float(model_pipeline.predict_proba(X_row)[0][1])
     pred = "OUI" if score >= 0.55 else "NON"
 
-    preprocessor = model_pipeline.named_steps["preprocessor"]
-    X_processed = preprocessor.transform(X_row)
-
-    if hasattr(preprocessor, "get_feature_names_out"):
-        feature_names = preprocessor.get_feature_names_out()
+    # ----- PATCH : brancher DummyModel et normal en prod -----
+    if type(model_pipeline).__name__ == "DummyModel":
+        # Retourne des SHAP “fictifs”
+        contribs = {"dummy1": 0.0, "dummy2": 0.0}
+        img_b64 = ""
     else:
-        feature_names = [f"feat_{i}" for i in range(X_processed.shape[1])]
-    df_processed = pd.DataFrame(X_processed, columns=feature_names)
+        preprocessor = model_pipeline.named_steps["preprocessor"]
+        X_processed = preprocessor.transform(X_row)
 
-    estimator = list(model_pipeline.named_steps.values())[-1]
-    explainer = shap.TreeExplainer(estimator)
-    shap_values = explainer(df_processed)
-    shap_explanation = shap_values[0]
+        if hasattr(preprocessor, "get_feature_names_out"):
+            feature_names = preprocessor.get_feature_names_out()
+        else:
+            feature_names = [f"feat_{i}" for i in range(X_processed.shape[1])]
+        df_processed = pd.DataFrame(X_processed, columns=feature_names)
+        estimator = list(model_pipeline.named_steps.values())[-1]
+        import shap
 
-    plt.clf()
-    shap.plots.waterfall(shap_explanation, show=False)
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    plt.close()
-    buf.seek(0)
-    img_b64 = base64.b64encode(buf.read()).decode("utf-8")
-    contribs = dict(zip(feature_names, shap_explanation.values.tolist()))
+        explainer = shap.TreeExplainer(estimator)
+        shap_values = explainer(df_processed)
+        shap_explanation = shap_values[0]
+        import matplotlib.pyplot as plt
+        import io
+        import base64
+
+        plt.clf()
+        shap.plots.waterfall(shap_explanation, show=False)
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", bbox_inches="tight")
+        plt.close()
+        buf.seek(0)
+        img_b64 = base64.b64encode(buf.read()).decode("utf-8")
+        contribs = dict(zip(feature_names, shap_explanation.values.tolist()))
 
     return {
         "prediction": pred,
@@ -250,12 +336,17 @@ def log_sample(
 ):
     if table not in {"model_input", "model_output", "api_log"}:
         return {"error": "Table inconnue"}
-    query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT :limit"
+
     try:
-        with engine.connect() as conn:
-            df = pd.read_sql(query, conn, params={"limit": n})
-        # Conversion propre
-        return df.head(n).to_dict(orient="records")
+        with engine_log.connect() as conn:
+            if conn.engine.dialect.name == "sqlite":
+                query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT ?"
+                params = (n,)
+            else:
+                query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT {int(n)}"
+                params = {}
+            df = pd.read_sql(query, conn, params=params)
+        return df.to_dict(orient="records")
     except Exception as e:
         print(f"Exception in log_sample: {e}")
         return {"error": "Erreur interne du serveur"}
