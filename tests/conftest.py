@@ -103,7 +103,7 @@ def test_db(tmp_path_factory):
         ) VALUES
         (
             1, 30, 3000, 3, 7, 5, 2, 4, 5, 3, 1, 3, 4, 4, 1, 1, 10, 2, 1, 2, 1, 0.5, 0.1, 'Rare',
-            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0
+            'Bas', 'Bas', 'Bas', 'Moyen', 'Moyen', 'Bas', 'Marié', 'Sciences', 'IT', 'H', 'Non', 'Non', 0
         ),
         (
             2, 40, 4500, 5, 15, 10, 4, 5, 6, 5, 2, 4, 5, 4, 2, 2, 20, 4, 5, 4, 2, 0.7, 0.2, 'Régulier',
