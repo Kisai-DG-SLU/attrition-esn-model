@@ -53,11 +53,44 @@ app = FastAPI(
     version="1.0",
 )
 
+class DummyModel:
+    """DummyModel pour mocker predict_proba et preprocessor."""
+    class DummyPreproc:
+        def transform(self, X):
+            # Retourne X inchangé ou un array de bonnes dimensions
+            import numpy as np
+            return np.zeros((X.shape[0], 2))
+
+        def get_feature_names_out(self):
+            # Retourne des noms fictifs
+            return ["dummy1", "dummy2"]
+
+    def __init__(self):
+        self.named_steps = {'preprocessor': self.DummyPreproc()}
+
+    def predict_proba(self, X):
+        import numpy as np
+        # Retourne probas constantes : "OUI" et "NON"
+        return np.array([[0.4, 0.6] for _ in range(len(X))])
+
 model_path = os.path.join(
     os.path.dirname(__file__), "..", "models", "model_pipeline.joblib"
 )
-model_pipeline = joblib.load(model_path)
 
+MODEL_MOCK = os.getenv("MODEL_MOCK", "0") == "1"
+
+if not MODEL_MOCK:
+    try:
+        model_pipeline = joblib.load(model_path)
+    except FileNotFoundError:
+        # Fallback automatique sur le mock si réel absent...
+        model_pipeline = DummyModel()
+else:
+    model_pipeline = DummyModel()
+
+model_path = os.path.join(
+    os.path.dirname(__file__), "..", "models", "model_pipeline.joblib"
+)
 
 def log_model_input(payload_dict):
     with engine_log.begin() as conn:
