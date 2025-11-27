@@ -44,7 +44,7 @@ jobs:
           git commit -m "Release: Updating Hugging Face Space (test) from main" || echo "Nothing to commit"
           git push origin test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Configure git for HF Space
         run: |
