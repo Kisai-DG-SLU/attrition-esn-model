@@ -11,7 +11,7 @@ on:
 
 jobs:
   copy-release-to-test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main and fetch all branches
@@ -34,10 +34,10 @@ jobs:
 
       - name: Update release files from main
         run: |
-          git checkout main -- app models/model.xgb README_HF.md requirements_hf.txt
+          git checkout main -- app models README_HF.md requirements_hf.txt
           mv README_HF.md README.md
           mv requirements_hf.txt requirements.txt
-          git add app models/model.xgb README.md requirements.txt
+          git add app models README.md requirements.txt
 
       - name: Commit and push to test branch
         run: |
