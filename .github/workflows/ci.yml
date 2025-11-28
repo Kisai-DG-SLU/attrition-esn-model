@@ -22,32 +22,32 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-#      - name: Format code (Black)
-#        run: pip install black && black --check .
-#
-#      - name: Lint (ruff)
-#        run: pip install ruff && ruff check . --fix
-#
-#      - name: Install test & coverage tools
-#        run: pip install pytest coverage
-#
-#      - name: Run tests with coverage
-#        run: coverage run -m pytest tests/
-#
-#      - name: Report coverage (console)
-#        run: coverage report --show-missing
-#
-#      - name: Generate coverage HTML report
-#        run: coverage html
-#
-#      - name: Déploiement HTML coverage manuel sur gh-pages
-#        run: |
-#          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-#          git config --global user.name "github-actions[bot]"
-#          git fetch origin gh-pages || true
-#          git worktree add gh-pages-worktree gh-pages || git worktree add gh-pages-worktree origin/gh-pages
-#          cp -r htmlcov/* gh-pages-worktree/
-#          cd gh-pages-worktree
-#          git add .
-#          git commit -m "Auto deploy coverage [skip ci]" || true
-#          git push origin gh-pages
+      - name: Format code (Black)
+        run: pip install black && black --check .
+
+      - name: Lint (ruff)
+        run: pip install ruff && ruff check . --fix
+
+      - name: Install test & coverage tools
+        run: pip install pytest coverage
+
+      - name: Run tests with coverage
+        run: coverage run -m pytest tests/
+
+      - name: Report coverage (console)
+        run: coverage report --show-missing
+
+      - name: Generate coverage HTML report
+        run: coverage html
+
+      - name: Déploiement HTML coverage manuel sur gh-pages
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git fetch origin gh-pages || true
+          git worktree add gh-pages-worktree gh-pages || git worktree add gh-pages-worktree origin/gh-pages
+          cp -r htmlcov/* gh-pages-worktree/
+          cd gh-pages-worktree
+          git add .
+          git commit -m "Auto deploy coverage [skip ci]" || true
+          git push origin gh-pages
