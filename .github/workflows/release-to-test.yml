@@ -4,47 +4,62 @@ permissions:
   contents: write
 
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branche source'
+        required: false
+        default: 'main'
+        type: string
+      target:
+        description: 'Branche cible'
+        required: false
+        default: 'test'
+        type: string
   workflow_run:
-    workflows: [CI (tests + lint + coverage)]
+    workflows: ["CI (tests + lint + coverage)"]
     types:
       - completed
 
 jobs:
   copy-release-to-test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout main and fetch all branches
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event.inputs.branch || 'main' }}
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Configure git
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: Fetch test branch
-        run: git fetch origin test:test
+      - name: Fetch target branch
+        run: git fetch origin ${{ github.event.inputs.target || 'test' }}:${{ github.event.inputs.target || 'test' }}
 
-      - name: Switch to test branch
-        run: git checkout test
+      - name: Switch to target branch
+        run: git checkout ${{ github.event.inputs.target || 'test' }}
 
-      - name: Update release files from main
+      - name: Update release files from source branch
         run: |
-          git checkout main -- app models README_HF.md requirements_hf.txt
+          git checkout ${{ github.event.inputs.branch || 'main' }} -- app models README_HF.md requirements_hf.txt
           mv README_HF.md README.md
           mv requirements_hf.txt requirements.txt
           git add app models README.md requirements.txt
 
-      - name: Commit and push to test branch
+      - name: Commit and push to target branch
         run: |
-          git commit -m "Release: Updating Hugging Face Space (test) from main" || echo "Nothing to commit"
-          git push origin test
+          git commit -m "Release: Updating ${{ github.event.inputs.target || 'test' }} from ${{ github.event.inputs.branch || 'main' }}" || echo "Nothing to commit"
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.event.inputs.target || 'test' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Configure git for HF Space
         run: |
@@ -55,7 +70,6 @@ jobs:
         run: |
           git remote add hfspace https://huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git
           git fetch hfspace
-          git push https://:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git test:main --force
+          git push https://${{ secrets.HF_TOKEN }}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git ${{ github.event.inputs.target || 'test' }}:main --force
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-
