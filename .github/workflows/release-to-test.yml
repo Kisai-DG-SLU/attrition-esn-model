@@ -57,7 +57,7 @@ jobs:
           mv requirements_hf.txt requirements.txt
 
           # Supprimer les fichiers spécifiques HF de la branche cible
-          git rm -f README_HF.md requirements_hf.txt || true
+          git rm -f README_HF.md requirements_hf.txt app/attrition_esn || true
 
           # Ajouter les fichiers à committer sur la branche cible
           git add app README.md requirements.txt
