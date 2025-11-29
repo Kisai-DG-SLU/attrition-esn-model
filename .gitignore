@@ -3,9 +3,6 @@
 uv.lock
 .env
 
-# Modèles
-models/
-
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 notebooks/.ipynb_checkpoints/
