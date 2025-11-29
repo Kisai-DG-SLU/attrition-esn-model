@@ -10,6 +10,10 @@ notebooks/.ipynb_checkpoints/
 # Fichiers de données potentiellement privés ou volumineux
 data/
 
+# Fichiers binaires
+app/attrition_esn
+models/model_pipeline.joblib
+
 # Résultats et sorties générées
 outputs/
 figures/
