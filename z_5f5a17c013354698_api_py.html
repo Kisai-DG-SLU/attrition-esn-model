@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for app/api.py: 91%</title>
+    <title>Coverage for app/api.py: 88%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8432e98f.css" type="text/css">
     <script src="coverage_html_cb_bcae5fc4.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>app&#8201;/&#8201;api.py</b>:
-            <span class="pc_cov">91%</span>
+            <span class="pc_cov">88%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">177 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">161<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">16<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">155<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">22<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_a44f0ac069e85531___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.12.0">coverage.py v7.12.0</a>,
-            created at 2025-11-29 19:14 +0000
+            created at 2025-11-29 19:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -160,10 +160,10 @@
     <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">named_steps</span> <span class="op">=</span> <span class="op">{</span><span class="str">"preprocessor"</span><span class="op">:</span> <span class="nam">self</span><span class="op">.</span><span class="nam">DummyPreproc</span><span class="op">(</span><span class="op">)</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="key">def</span> <span class="nam">predict_proba</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">X</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">        <span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">np</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">        <span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">np</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">        <span class="com"># Retourne probas constantes : "OUI" et "NON"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="key">return</span> <span class="nam">np</span><span class="op">.</span><span class="nam">array</span><span class="op">(</span><span class="op">[</span><span class="op">[</span><span class="num">0.4</span><span class="op">,</span> <span class="num">0.6</span><span class="op">]</span> <span class="key">for</span> <span class="nam">_</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">X</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="key">return</span> <span class="nam">np</span><span class="op">.</span><span class="nam">array</span><span class="op">(</span><span class="op">[</span><span class="op">[</span><span class="num">0.4</span><span class="op">,</span> <span class="num">0.6</span><span class="op">]</span> <span class="key">for</span> <span class="nam">_</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">X</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="nam">model_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -175,9 +175,9 @@
     <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="key">if</span> <span class="key">not</span> <span class="nam">MODEL_MOCK</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="nam">model_pipeline</span> <span class="op">=</span> <span class="nam">joblib</span><span class="op">.</span><span class="nam">load</span><span class="op">(</span><span class="nam">model_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="key">except</span> <span class="nam">FileNotFoundError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="key">except</span> <span class="nam">FileNotFoundError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">        <span class="com"># Fallback automatique sur le mock si r&#233;el absent...</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="nam">model_pipeline</span> <span class="op">=</span> <span class="nam">DummyModel</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="nam">model_pipeline</span> <span class="op">=</span> <span class="nam">DummyModel</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">    <span class="nam">model_pipeline</span> <span class="op">=</span> <span class="nam">DummyModel</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -295,8 +295,8 @@
     <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t">    <span class="com"># ----- PATCH : brancher DummyModel et normal en prod -----</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t">    <span class="key">if</span> <span class="nam">type</span><span class="op">(</span><span class="nam">model_pipeline</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span> <span class="op">==</span> <span class="str">"DummyModel"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t">        <span class="com"># Retourne des SHAP &#8220;fictifs&#8221;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t">        <span class="nam">contribs</span> <span class="op">=</span> <span class="op">{</span><span class="str">"dummy1"</span><span class="op">:</span> <span class="num">0.0</span><span class="op">,</span> <span class="str">"dummy2"</span><span class="op">:</span> <span class="num">0.0</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t">        <span class="nam">img_b64</span> <span class="op">=</span> <span class="str">""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t">        <span class="nam">contribs</span> <span class="op">=</span> <span class="op">{</span><span class="str">"dummy1"</span><span class="op">:</span> <span class="num">0.0</span><span class="op">,</span> <span class="str">"dummy2"</span><span class="op">:</span> <span class="num">0.0</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t">        <span class="nam">img_b64</span> <span class="op">=</span> <span class="str">""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t">        <span class="nam">preprocessor</span> <span class="op">=</span> <span class="nam">model_pipeline</span><span class="op">.</span><span class="nam">named_steps</span><span class="op">[</span><span class="str">"preprocessor"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t">        <span class="nam">X_processed</span> <span class="op">=</span> <span class="nam">preprocessor</span><span class="op">.</span><span class="nam">transform</span><span class="op">(</span><span class="nam">X_row</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -436,7 +436,7 @@
             <a class="nav" href="z_a44f0ac069e85531___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.12.0">coverage.py v7.12.0</a>,
-            created at 2025-11-29 19:14 +0000
+            created at 2025-11-29 19:20 +0000
         </p>
     </div>
 </footer>
