@@ -80,4 +80,4 @@ jobs:
         run: |
           git remote add hfspace https://huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git
           git fetch hfspace
-          git push https://${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git ${{ github.event.inputs.target || 'test' }}:main --force
+          git push https://$HF_TOKEN@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git ${{ github.event.inputs.target || 'test' }}:main --force
