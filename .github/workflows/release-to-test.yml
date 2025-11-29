@@ -49,10 +49,18 @@ jobs:
 
       - name: Update release files from source branch
         run: |
-          git checkout ${{ github.event.inputs.branch || 'main' }} -- app models README_HF.md requirements_hf.txt
+          # Récupérer les fichiers depuis la branche source (main par défaut)
+          git checkout ${{ github.event.inputs.branch || 'main' }} -- app README_HF.md requirements_hf.txt
+
+          # Renommer pour la branche cible (test)
           mv README_HF.md README.md
           mv requirements_hf.txt requirements.txt
-          git add app models README.md requirements.txt
+
+          # Supprimer les fichiers spécifiques HF de la branche cible
+          git rm -f README_HF.md requirements_hf.txt || true
+
+          # Ajouter les fichiers à committer sur la branche cible
+          git add app README.md requirements.txt
 
       - name: Commit and push to target branch
         run: |
@@ -67,9 +75,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
 
       - name: Add Hugging Face remote and push branch
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           git remote add hfspace https://huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git
           git fetch hfspace
-          git push https://${{ secrets.HF_TOKEN }}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git ${{ github.event.inputs.target || 'test' }}:main --force
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          git push https://${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git ${{ github.event.inputs.target || 'test' }}:main --force
