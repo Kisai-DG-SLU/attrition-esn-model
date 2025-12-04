@@ -1,0 +1,11 @@
+# 1) Tout ignorer
+/*
+
+# 2) Réinclure ce que tu veux suivre
+!.gitignore
+!README.md
+!requirements.txt
+
+# garder le code dans app/
+!app/
+!app/*.py
