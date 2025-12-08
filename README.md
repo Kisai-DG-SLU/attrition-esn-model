@@ -408,18 +408,18 @@ flowchart LR
 A[Dev local conda env] --> B[Commit / Push]
 B --> C[Branch main]
 
-C --> D[CI GitHub Actions<br/>(tests + lint + coverage)]
+C --> D[CI GitHub Actions (tests + lint + coverage)]
 D -->|succès| E[Workflow release-to-test]
 
 E --> F[Branch test]
-F --> G[HF Space TEST<br/>attrition-esn-demo-test]
+F --> G[HF Space TEST attrition-esn-demo-test]
 
 %% Validation manuelle
 G --> H[Validation fonctionnelle]
 
 H --> I[Workflow release-to-prod]
 I --> J[Branch prod]
-J --> K[HF Space PROD<br/>attrition-esn-demo]
+J --> K[HF Space PROD attrition-esn-demo]
 
 %% Légende
 classDef branch fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px;
