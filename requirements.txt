@@ -17,3 +17,5 @@ pydantic
 scikit-learn
 numpy==1.26.4
 imbalanced-learn==0.14.0
+requests==2.32.5
+urllib3==2.6.0

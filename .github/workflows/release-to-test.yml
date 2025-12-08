@@ -56,7 +56,7 @@ jobs:
           mv README_HF.md README.md
           mv requirements_hf.txt requirements.txt
 
-          # Supprimer les fichiers spécifiques HF de la branche cible
+          # Supprimer seulement les fichiers HF spécifiques que tu ne veux plus dans test
           git rm -f README_HF.md requirements_hf.txt app/attrition_esn || true
 
           # Ajouter les fichiers à committer sur la branche cible
@@ -69,14 +69,35 @@ jobs:
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Configure git for HF Space
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
+      # ---- Partie Hugging Face : clone dédié + copie sélective ----
 
-      - name: Add Hugging Face remote and push branch
+      - name: Clone Hugging Face Space repo
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add hfspace https://huggingface:$HF_TOKEN@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git
-          git push hfspace ${{ github.event.inputs.target || 'test' }}:main --force
+          git clone https://huggingface:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo-test.git hf-space
+          cd hf-space
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Sync selected files into HF Space repo
+        run: |
+          # On est dans le repo GitHub (branche test) ici
+          # Copier uniquement ce qu'on veut mettre à jour dans le clone du Space
+          rsync -av --delete-excluded \
+            --include "app/***" \
+            --include "README.md" \
+            --include "requirements.txt" \
+            --exclude "*" \
+            ./ hf-space/
+
+          cd hf-space
+          git status
+
+          git add app README.md requirements.txt || true
+
+          git commit -m "Sync from GitHub test branch (app + README + requirements)" || echo "Nothing to commit"
+
+          git push origin main
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
