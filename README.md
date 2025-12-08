@@ -405,30 +405,27 @@ Un workflow similaire (`release-to-prod.yml`) :
 
 ```mermaid
 flowchart LR
-A[Dev local conda env] --> B[Commit / Push]
-B --> C[Branch main]
+    A[Dev local conda env] --> B[Commit / Push]
+    B --> C[Branch main]
+    C --> D[CI GitHub Actions (tests + lint + coverage)]
+    D -->|succès| E[Workflow release-to-test]
+    E --> F[Branch test]
+    F --> G[HF Space TEST attrition-esn-demo-test]
 
-C --> D[CI GitHub Actions (tests + lint + coverage)]
-D -->|succès| E[Workflow release-to-test]
+    %% Validation manuelle
+    G --> H[Validation fonctionnelle]
+    H --> I[Workflow release-to-prod]
+    I --> J[Branch prod]
+    J --> K[HF Space PROD attrition-esn-demo]
 
-E --> F[Branch test]
-F --> G[HF Space TEST attrition-esn-demo-test]
+    %% Styles
+    classDef branch fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px;
+    classDef ci fill:#e8f5e9,stroke:#43a047,stroke-width:1px;
+    classDef env fill:#fff3e0,stroke:#fb8c00,stroke-width:1px;
+    class C,F,J branch;
+    class D,E,I ci;
+    class A,G,K env;
 
-%% Validation manuelle
-G --> H[Validation fonctionnelle]
-
-H --> I[Workflow release-to-prod]
-I --> J[Branch prod]
-J --> K[HF Space PROD attrition-esn-demo]
-
-%% Légende
-classDef branch fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px;
-classDef ci fill:#e8f5e9,stroke:#43a047,stroke-width:1px;
-classDef env fill:#fff3e0,stroke:#fb8c00,stroke-width:1px;
-
-class C,F,J branch;
-class D,E,I ci;
-class A,G,K env;
 ```
 
 ---
