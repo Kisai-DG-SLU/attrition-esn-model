@@ -1,6 +1,7 @@
 name: attrition-esn-env
 channels:
   - conda-forge
+  - default
 dependencies:
   - python=3.10
   - pandas
@@ -17,6 +18,8 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - python-dotenv
-  - jupyterlab
+  - jupyterlab=4.5.0
+  - requests=2.32.5
+  - urllib3>=2.6.0
   - ipython
   - black
