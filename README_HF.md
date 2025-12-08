@@ -1,79 +1,177 @@
-# Attrition ESN – API Démo
+# Attrition ESN – API & Démo Hugging Face
 
-Démo d’application pour la prédiction du risque d’attrition des salariés d’ESN, basée sur un modèle XGBoost optimisé.  
-Cette instance utilise une base de données SQL (SQLite sur l’espace HF, PostgreSQL en local/dev) pour stocker toutes les données exploitées par l’application.
-
----
-
-## Fonctionnement
-
-- Les données des salariés sont **préchargées** dans la base SQL.
-- L'utilisateur interagit avec une **API FastAPI** (mode Docker/HF Space).
-- Un endpoint principal (`/predict`) permet d’obtenir le score d’attrition d’un salarié sélectionné, ainsi qu’un graphe explicatif type waterfall (SHAP) pour la compréhension du modèle.
+Démo d’application pour la prédiction du risque d’attrition des salariés d’ESN, basée sur un modèle XGBoost optimisé et déployé derrière une API FastAPI, avec une interface Gradio pour les utilisateurs métier.  
+Cette instance utilise une base de données SQL (SQLite sur l’espace HF, PostgreSQL en local/dev) pour stocker les données et les logs.
 
 ---
 
-## Principaux Endpoints API
+## Architecture de l’application
 
-- **GET /health**  
-  Vérifie l’état du service.
-- **POST /predict**  
-  Requiert l’ID d’un salarié (`employee_id`) en entrée.  
-  Retourne :
-    - Score de risque d’attrition
-    - Graphique waterfall d’explicabilité au format image/base64
-    - Interprétation des variables clés
-- **(optionnel)** endpoints de listing ou auto-complétion sur `employee_id`
+- Backend : API FastAPI (`app/api.py`) exposant les endpoints de prédiction, de santé, de liste d’employés et d’inspection des logs.  
+- Modèle ML : pipeline scikit-learn + XGBoost, exporté en `model_pipeline.joblib` depuis le projet d’analyse (attrition ESN) et chargé par l’API.  
+- Base de données :
+  - Dev/local : PostgreSQL (`raw`, `model_input`, `model_output`, `api_log`).
+  - HF Space : base SQLite clonée depuis PostgreSQL avec le même schéma.
+- Frontend exemple : application Gradio (`gradio_frontend.py`) consommant l’API pour offrir une interface métier (sélection d’ID salarié, prédiction, explicabilité SHAP, consultation des logs).
 
 ---
 
-## Utilisation
+## Principaux endpoints FastAPI
 
-- **Via l’API** :
-    - Exemple de requête :
-        ```
-        curl -X POST "https://hf.space/embed/damienguesdon/attrition-esn-demo-test/predict" \
-             -H "Content-Type: application/json" \
-             -d '{"employee_id": 1234}'
-        ```
-- **Interface utilisateur** :
-    - Sélectionnez l’ID salarié dans une liste filtrable/auto-complétée.
-    - Cliquez sur “Prédire” pour voir le score et le graphe explicatif.
+Base URL type :  
+`https://hf.space/embed/<user>/attrition-esn-demo-test`
+
+- GET `/health`  
+  Vérifie l’état du service.  
+  Réponse type :
+{
+"status": "ok",
+"version": "1.0",
+"env": "hf"
+}
+
+text
+
+- GET `/employee_list`  
+Retourne la liste des `id_employee` disponibles dans la table `raw`.
+
+- GET `/predict`  
+Paramètre : `id_employee` (int, query param).  
+Réponse JSON :
+- `prediction` : "OUI" ou "NON".  
+- `score` : probabilité prédite de départ (float entre 0 et 1).  
+- `id_employee` : identifiant salarié.  
+- `donnees_brutes` : features d’origine pour cet employé.  
+- `shap_waterfall` : contributions SHAP par feature post-préprocessing.  
+- `shap_waterfall_img` : graphique SHAP waterfall encodé en base64 (PNG).
+
+- POST `/predict`  
+Payload JSON :
+{
+"id_employee": 1234
+}
+
+text
+Réponse identique à la version GET.
+
+- GET `/log_sample`  
+Paramètres :
+- `table` : "model_input" | "model_output" | "api_log".  
+- `n` : nombre de lignes à retourner (par défaut : 3).  
+Utilisé pour afficher un extrait des logs dans l’interface de démo.
 
 ---
 
-## Workflow & Persistence
+## Exemple d’utilisation via cURL
 
-- Tous les inputs utilisateurs et outputs du modèle sont enregistrés dans la base de données pour audit & analyse.
-- SQLAlchemy est utilisé pour garantir la portabilité entre PostgreSQL (dev/local) et SQLite (HF Space).
+### 1. Vérifier l’état de l’API
+
+~~~ bash
+curl -X GET "https://hf.space/embed/<user>/attrition-esn-demo-test/health"
+~~~
+
+### 2. Récupérer la liste des employés
+
+~~~ bash
+curl -X GET "https://hf.space/embed/<user>/attrition-esn-demo-test/employee_list"
+~~~
+
+### 3. Obtenir une prédiction pour un salarié
+
+~~~ bash
+curl -X GET
+"https://hf.space/embed/<user>/attrition-esn-demo-test/predict?id_employee=1234"
+~~~
+
+Réponse JSON (exemple simplifié) :
+
+~~~ json
+{
+"prediction": "OUI",
+"score": 0.63,
+"id_employee": 1234,
+"donnees_brutes": { "...": "..." },
+"shap_waterfall": { "age": 0.12, "revenu_mensuel": -0.08 },
+"shap_waterfall_img": "<chaine_base64_png>"
+}
+~~~
 
 ---
 
-## Dépendances Principales
+## Exemple d’utilisation via le frontend Gradio
 
-- Python 3.10+
-- fastapi
-- uvicorn
-- xgboost
-- shap
-- sqlalchemy
-- pandas
-- sqlite3 ou psycopg2 selon le contexte
-- (voir requirements.txt minimal dédié Space)
+L’interface Gradio (`gradio_frontend.py`) est intégrée au Space et communique avec l’API FastAPI.
+
+### Flux principal côté utilisateur
+
+1. Vérifier l’état de l’API  
+   - Un bouton "Vérifier l’état de l’API" appelle `GET /health`.  
+   - Si `status == "ok"`, la bannière affiche que l’API est opérationnelle et les champs deviennent interactifs.
+
+2. Filtrer et sélectionner un salarié  
+   - Un champ texte permet de filtrer la liste d’IDs (`/employee_list`) en tapant quelques chiffres.  
+   - La table "Liste filtrée (30 max)" affiche les `id_employee` correspondants.  
+   - L’utilisateur copie/colle l’ID choisi dans "ID à prédire".
+
+3. Lancer la prédiction  
+   - Le bouton "Prédire" déclenche `GET /predict?id_employee=<ID>`.  
+   - La page affiche :
+     - Un résumé coloré du risque :
+       - 🔴 OUI (risque de départ probable) ou
+       - 🟢 NON (risque de départ peu probable).
+     - Le score du modèle (probabilité entre 0 et 1).
+     - Le graphique SHAP waterfall (image décodée de `shap_waterfall_img`).
+     - Un tableau d’explicabilité listant les variables brutes et un indicateur d’impact.
+
+4. Consulter les logs (onglet "Logs API")  
+   - Onglet dédié avec les dernières lignes des tables :
+     - `model_input` : payloads d’entrée.  
+     - `model_output` : prédictions + version de modèle.  
+     - `api_log` : événements API (code, durée, erreurs).  
+   - Le bouton "Rafraîchir logs" appelle `/log_sample` sur chaque table.
+
+---
+
+## Lancement local
+
+### 1. Préparer la base de données
+
+- Construire PostgreSQL depuis le projet d’analyse (scripts `create_db.py`, `evaluate_db.py`, `log_check.py`).
+
+### 2. Lancer l’API FastAPI
+
+~~~ bash
+uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+~~~
+
+- Documentation interactive : `http://localhost:8000/docs`(Swagger UI) ou `http://localhost:8000/redoc`(ReDoc).
+
+### 3. Lancer le frontend Gradio
+
+~~~ bash
+python gradio_frontend.py
+~~~
+
+- Interface : `http://localhost:7860`, connectée à l’API en `http://localhost:8000`.
+
+---
+
+## Stack technique
+
+- Langage : Python 3.10+  
+- Backend : FastAPI, Uvicorn  
+- Modèle : scikit-learn, XGBoost, SHAP  
+- Base de données : PostgreSQL (dev), SQLite (HF), SQLAlchemy pour l’abstraction  
+- Frontend : Gradio  
+- Tests & CI/CD :
+  - Pytest + coverage
+  - CI GitHub Actions (lint, tests, coverage, publication rapport)
+  - Workflows de release vers HF
 
 ---
 
 ## À propos
 
-- Projet réalisé dans le cadre **OpenClassrooms IA Engineer**.
-- Environnement de test & prod distincts, synchronisation manuelle (prod) ou automatique (test) depuis GitHub
-- Licence recommandée : MIT ou Apache 2.0
-
----
-
-## Contact
-
-Pour support, questions ou retours :  
-[https://github.com/Kisai-DG-SLU/attrition-esn-model]
-
----
+- Projet réalisé dans le cadre de la formation OpenClassrooms AI Engineer.  
+- L’espace HF de test est alimenté depuis GitHub via un workflow `release-to-test` après succès de la CI.
+- L’espace HF de prod est alimenté depuis GitHub via un workflow `release-to-prod` après succès de `release-to-test`.
