@@ -403,11 +403,11 @@ Un workflow similaire (`release-to-prod.yml`) :
 
 ### Workflow complet
 
-```mermaid
+``` mermaid
 flowchart LR
     A[Dev local conda env] --> B[Commit / Push]
     B --> C[Branch main]
-    C --> D[CI GitHub Actions (tests + lint + coverage)]
+    C --> D[CI GitHub Actions tests + lint + coverage]
     D -->|succès| E[Workflow release-to-test]
     E --> F[Branch test]
     F --> G[HF Space TEST attrition-esn-demo-test]
