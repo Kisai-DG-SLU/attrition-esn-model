@@ -1,7 +1,19 @@
+---
+title: Attrition Esn Demo
+emoji: 🌖
+colorFrom: pink
+colorTo: red
+sdk: docker
+pinned: false
+license: apache-2.0
+short_description: predict attrition in an esn with an existing dataset
+---
+
 # Attrition ESN – API & Démo Hugging Face
 
 Démo d’application pour la prédiction du risque d’attrition des salariés d’ESN, basée sur un modèle XGBoost optimisé et déployé derrière une API FastAPI, avec une interface Gradio pour les utilisateurs métier.  
 Cette instance utilise une base de données SQL (SQLite sur l’espace HF, PostgreSQL en local/dev) pour stocker les données et les logs.
+Sur l'espace Hugging Face, l'API n'est pas exposée publiquement, le fontend gradio l'interroge localement pour illustrer un exemple possible d'utilisation.
 
 ---
 
@@ -19,7 +31,8 @@ Cette instance utilise une base de données SQL (SQLite sur l’espace HF, Postg
 ## Principaux endpoints FastAPI
 
 Base URL type :  
-`https://hf.space/embed/<user>/attrition-esn-demo-test`
+`https://<url-API>/`
+exemple local : 
 
 - GET `/health`  
   Vérifie l’état du service.  
@@ -29,8 +42,6 @@ Base URL type :
 "version": "1.0",
 "env": "hf"
 }
-
-text
 
 - GET `/employee_list`  
 Retourne la liste des `id_employee` disponibles dans la table `raw`.
@@ -51,7 +62,6 @@ Payload JSON :
 "id_employee": 1234
 }
 
-text
 Réponse identique à la version GET.
 
 - GET `/log_sample`  
@@ -67,20 +77,20 @@ Utilisé pour afficher un extrait des logs dans l’interface de démo.
 ### 1. Vérifier l’état de l’API
 
 ~~~ bash
-curl -X GET "https://hf.space/embed/<user>/attrition-esn-demo-test/health"
+curl -X GET "http://127.0.0.1:8000/health"
 ~~~
 
 ### 2. Récupérer la liste des employés
 
 ~~~ bash
-curl -X GET "https://hf.space/embed/<user>/attrition-esn-demo-test/employee_list"
+curl -X GET "http://127.0.0.1:8000/employee_list"
 ~~~
 
 ### 3. Obtenir une prédiction pour un salarié
 
 ~~~ bash
 curl -X GET
-"https://hf.space/embed/<user>/attrition-esn-demo-test/predict?id_employee=1234"
+"http://127.0.0.1:8000/predict?id_employee=1495"
 ~~~
 
 Réponse JSON (exemple simplifié) :
@@ -89,9 +99,10 @@ Réponse JSON (exemple simplifié) :
 {
 "prediction": "OUI",
 "score": 0.63,
-"id_employee": 1234,
+"id_employee": 1495,
 "donnees_brutes": { "...": "..." },
 "shap_waterfall": { "age": 0.12, "revenu_mensuel": -0.08 },
+[...]
 "shap_waterfall_img": "<chaine_base64_png>"
 }
 ~~~
@@ -144,7 +155,10 @@ L’interface Gradio (`gradio_frontend.py`) est intégrée au Space et communiqu
 uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
 ~~~
 
-- Documentation interactive : `http://localhost:8000/docs`(Swagger UI) ou `http://localhost:8000/redoc`(ReDoc).
+Documentation interactive :
+
+- Swagger UI : `http://localhost:8000/docs`
+- ReDoc : `http://localhost:8000/redoc`
 
 ### 3. Lancer le frontend Gradio
 

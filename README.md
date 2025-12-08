@@ -283,7 +283,7 @@ conda activate attrition-esn
 ### 1. Cloner le dépôt
 
 ~~~ bash
-git clone <url_du_depot>
+git clone https://github.com/Kisai-DG-SLU/attrition-esn-model.git
 cd attrition-esn-model
 ~~~
 
@@ -331,7 +331,8 @@ python scripts/log_check.py
 uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
 ~~~
 
-- Swagger / Redoc : `http://localhost:8000/docs`.
+- Swagger UI : `http://localhost:8000/docs`.
+- ReDoc : `http://localhost:8000/redoc`.
 
 ### 5. Lancer le frontend Gradio en local (adapter l'host et l'url si distant)
 
@@ -404,8 +405,7 @@ Un workflow similaire (`release-to-prod.yml`) :
 
 ```mermaid
 flowchart LR
-A[Dev local
-conda env] --> B[Commit / Push]
+A[Dev local conda env] --> B[Commit / Push]
 B --> C[Branch main]
 
 C --> D[CI GitHub Actions<br/>(tests + lint + coverage)]
@@ -445,6 +445,6 @@ class A,G,K env;
 ## Contact
 
 - Auteur : Damien GUESDON / Kisai DG SLU  
-- Dépôt GitHub : `<url_du_depot>`
+- Dépôt GitHub : `https://github.com/Kisai-DG-SLU/attrition-esn-model`
 
 Projet réalisé dans le cadre de la formation OpenClassrooms – AI Engineer.
