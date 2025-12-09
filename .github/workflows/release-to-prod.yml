@@ -1,0 +1,58 @@
+name: Release to prod
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release-to-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Checkout branche test
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+        with:
+          ref: test
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      # 2) Copier le contenu de test vers la branche prod (même repo GitHub)
+      - name: Update prod branch from test
+        run: |
+          # On est sur test, on force prod à être identique à test
+          git checkout -B prod
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:prod --force
+
+      # 3) Cloner le Space HF PROD
+      - name: Clone HF Space PROD
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone https://huggingface:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo.git hf-space-prod
+          cd hf-space-prod
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      # 4) Copier le contenu de la branche prod vers le Space PROD
+      - name: Sync GitHub prod branch into HF Space PROD
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Repo GitHub (branche prod) déjà présent dans le workspace (dossier .)
+          # On copie TOUT vers le clone du Space PROD
+          cp -r . ../hf-space-prod/
+
+          cd ../hf-space-prod
+          git add .
+          git commit -m "Sync from GitHub prod branch" || echo "Nothing to commit"
+          git push origin main
+
