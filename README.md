@@ -427,7 +427,7 @@ flowchart LR
     class A,G,K env;
 
 ```
-
+![Workflow des branches Git et déploiements HF](docs/images/workflow.png)
 ---
 
 ## Organisation technique
