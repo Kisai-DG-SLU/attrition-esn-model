@@ -25,15 +25,14 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      # 2) Copier le contenu de test vers la branche prod (même repo GitHub)
+      # 2) Mettre à jour la branche prod depuis test (même logique qu'avant)
       - name: Update prod branch from test
         run: |
-          # On est sur test, on force prod à être identique à test
           git checkout -B prod
           git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:prod --force
 
       # 3) Cloner le Space HF PROD
-      - name: Clone HF Space PROD
+      - name: Clone Hugging Face Space PROD
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
@@ -42,27 +41,22 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-      # 4) Copier le contenu de la branche prod vers le Space PROD
-      - name: Sync GitHub prod branch into HF Space PROD
+      # 4) Pousser le contenu de la branche prod vers le Space PROD
+      #    en ne mettant à jour que app/, README.md, requirements.txt
+      - name: Sync prod branch into HF Space PROD
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # On est dans le repo GitHub (branche prod)
-          # Copier uniquement le contenu de prod dans le clone du Space PROD
-          cp -r . ../hf-space-prod/
+          # On est dans le repo GitHub sur la branche prod (après le checkout -B prod)
+          # Copier uniquement ce qu'on veut mettre à jour dans le Space PROD
+          cp -r app hf-space-prod/
+          cp README.md hf-space-prod/
+          cp requirements.txt hf-space-prod/
 
-          cd ../hf-space-prod
+          cd hf-space-prod
+          git status
 
-          # S'assurer que le remote pointe bien vers le Space PROD
-          git remote set-url origin https://huggingface:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo.git
+          git add app README.md requirements.txt || true
+          git commit -m "Sync from GitHub prod branch (app + README + requirements)" || echo "Nothing to commit"
 
-          # Récupérer l'historique existant du Space PROD
-          git pull origin main --rebase || true
-
-          # Ajouter les fichiers mis à jour venant de prod
-          git add .
-
-          git commit -m "Sync from GitHub prod branch (code only)" || echo "Nothing to commit"
-
-          # Push sans --force : on garde les fichiers déjà présents sur le Space
-          git push origin HEAD:main
+          git push origin main
