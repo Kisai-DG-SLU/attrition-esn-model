@@ -51,6 +51,10 @@ jobs:
           cp -r . ../hf-space-prod/
 
           cd ../hf-space-prod
+
+          # Sécuriser le remote vers HF (au cas où origin aurait été modifié)
+          git remote set-url origin https://huggingface:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo.git
+
           git add .
           git commit -m "Sync from GitHub prod branch" || echo "Nothing to commit"
           git push origin HEAD:main
