@@ -32,6 +32,7 @@ DB_TYPE = os.getenv("DB_TYPE", "postgresql")
 
 READONLY_DB = os.getenv("READONLY_DB", "0") == "1"
 
+
 def get_engine(role="demo"):
     if DB_TYPE == "sqlite":
         db_connect = f"sqlite:///{db_name}"
@@ -64,6 +65,7 @@ app = FastAPI(
     description=f"Swagger FastAPI + accès BDD via SQLAlchemy [{ENV}]",
     version="1.0",
 )
+
 
 class DummyModel:
     """DummyModel pour mocker predict_proba et preprocessor."""
@@ -177,7 +179,6 @@ def log_model_output(input_id, prediction, model_version=None):
             return result.fetchone()[0]
 
 
-
 def log_api_event(
     event_type,
     req=None,
@@ -214,7 +215,6 @@ def log_api_event(
                 "error_detail": error,
             },
         )
-
 
 
 def get_raw_employee(id_employee):
