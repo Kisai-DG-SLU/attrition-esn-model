@@ -54,5 +54,5 @@ jobs:
           cd ../hf-space-prod
           git add .
           git commit -m "Sync from GitHub prod branch" || echo "Nothing to commit"
-          git push origin main
+          git push
 
