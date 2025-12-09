@@ -47,14 +47,22 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Copier TOUT le contenu du repo (branche prod) dans le clone du Space PROD
+          # On est dans le repo GitHub (branche prod)
+          # Copier uniquement le contenu de prod dans le clone du Space PROD
           cp -r . ../hf-space-prod/
 
           cd ../hf-space-prod
 
-          # Sécuriser le remote vers HF (au cas où origin aurait été modifié)
+          # S'assurer que le remote pointe bien vers le Space PROD
           git remote set-url origin https://huggingface:${HF_TOKEN}@huggingface.co/spaces/damienguesdon/attrition-esn-demo.git
 
+          # Récupérer l'historique existant du Space PROD
+          git pull origin main --rebase || true
+
+          # Ajouter les fichiers mis à jour venant de prod
           git add .
-          git commit -m "Sync from GitHub prod branch" || echo "Nothing to commit"
+
+          git commit -m "Sync from GitHub prod branch (code only)" || echo "Nothing to commit"
+
+          # Push sans --force : on garde les fichiers déjà présents sur le Space
           git push origin HEAD:main
