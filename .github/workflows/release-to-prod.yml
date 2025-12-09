@@ -47,12 +47,10 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Repo GitHub (branche prod) déjà présent dans le workspace (dossier .)
-          # On copie TOUT vers le clone du Space PROD
+          # Copier TOUT le contenu du repo (branche prod) dans le clone du Space PROD
           cp -r . ../hf-space-prod/
 
           cd ../hf-space-prod
           git add .
           git commit -m "Sync from GitHub prod branch" || echo "Nothing to commit"
-          git push
-
+          git push origin HEAD:main
