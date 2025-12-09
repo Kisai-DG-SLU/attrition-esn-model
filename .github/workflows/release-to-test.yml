@@ -17,7 +17,7 @@ on:
         default: 'test'
         type: string
   workflow_run:
-    workflows: ["CI (tests + lint + coverage)"]
+    workflows: ["CI"]
     types:
       - completed
 
@@ -84,12 +84,9 @@ jobs:
         run: |
           # On est dans le repo GitHub (branche test) ici
           # Copier uniquement ce qu'on veut mettre à jour dans le clone du Space
-          rsync -av --delete-excluded \
-            --include "app/***" \
-            --include "README.md" \
-            --include "requirements.txt" \
-            --exclude "*" \
-            ./ hf-space/
+          cp -r app hf-space/
+          cp README.md hf-space/
+          cp requirements.txt hf-space/
 
           cd hf-space
           git status

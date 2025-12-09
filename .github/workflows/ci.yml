@@ -1,4 +1,4 @@
-name: CI (tests + lint + coverage)
+name: CI
 permissions:
   contents: write
 
