@@ -30,6 +30,8 @@ db_port = os.getenv("DB_SYS_PORT", "5432")
 db_name = os.getenv("DB_NAME")
 DB_TYPE = os.getenv("DB_TYPE", "postgresql")
 
+READONLY_DB = os.getenv("READONLY_DB", "0") == "1"
+
 
 def get_engine(role="demo"):
     if DB_TYPE == "sqlite":
@@ -111,6 +113,11 @@ model_path = os.path.join(
 
 def log_model_input(payload_dict):
     global engine_log
+
+    if READONLY_DB:
+        # Pas d'écriture en prod HF (SQLite RO)
+        return -1
+
     with engine_log.begin() as conn:
         if conn.engine.dialect.name == "sqlite":
             conn.execute(
@@ -123,7 +130,8 @@ def log_model_input(payload_dict):
         else:
             result = conn.execute(
                 text(
-                    "INSERT INTO model_input (payload) VALUES (:payload) RETURNING input_id;"
+                    "INSERT INTO model_input (payload) "
+                    "VALUES (:payload) RETURNING input_id;"
                 ),
                 {"payload": json.dumps(payload_dict)},
             )
@@ -132,11 +140,18 @@ def log_model_input(payload_dict):
 
 def log_model_output(input_id, prediction, model_version=None):
     global engine_log
+
+    if READONLY_DB:
+        # Pas de log, on renvoie un ID factice
+        return -1
+
     with engine_log.begin() as conn:
         if conn.engine.dialect.name == "sqlite":
             conn.execute(
                 text(
-                    "INSERT INTO model_output (input_id, prediction, model_version) VALUES (:input_id, :prediction, :model_version)"
+                    "INSERT INTO model_output "
+                    "(input_id, prediction, model_version) "
+                    "VALUES (:input_id, :prediction, :model_version)"
                 ),
                 {
                     "input_id": input_id,
@@ -150,7 +165,10 @@ def log_model_output(input_id, prediction, model_version=None):
         else:
             result = conn.execute(
                 text(
-                    "INSERT INTO model_output (input_id, prediction, model_version) VALUES (:input_id, :prediction, :model_version) RETURNING output_id;"
+                    "INSERT INTO model_output "
+                    "(input_id, prediction, model_version) "
+                    "VALUES (:input_id, :prediction, :model_version) "
+                    "RETURNING output_id;"
                 ),
                 {
                     "input_id": input_id,
@@ -170,14 +188,20 @@ def log_api_event(
     duration_ms=None,
     error=None,
 ):
+    if READONLY_DB:
+        # En prod HF, pas de trace en base
+        return
+
     with engine_log.begin() as conn:
         conn.execute(
             text(
                 """
                 INSERT INTO api_log (
-                    event_type, request_payload, response_payload, http_code, user_id, duration_ms, error_detail
+                    event_type, request_payload, response_payload,
+                    http_code, user_id, duration_ms, error_detail
                 ) VALUES (
-                    :event_type, :request_payload, :response_payload, :http_code, :user_id, :duration_ms, :error_detail
+                    :event_type, :request_payload, :response_payload,
+                    :http_code, :user_id, :duration_ms, :error_detail
                 )
             """
             ),
