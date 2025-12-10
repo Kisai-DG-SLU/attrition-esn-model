@@ -10,7 +10,7 @@ matplotlib
 python-dotenv
 requests
 pydantic
-scikit-learn
+scikit-learn==1.7.2
 numpy==1.26.4
 imbalanced-learn==0.14.0
 requests==2.32.5
