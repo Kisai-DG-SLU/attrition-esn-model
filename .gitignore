@@ -17,7 +17,6 @@ models/model_pipeline.joblib
 # Résultats et sorties générées
 outputs/
 figures/
-*.png
 *.jpg
 *.pdf
 *.svg
