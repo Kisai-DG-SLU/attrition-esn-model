@@ -204,7 +204,7 @@ Couverture élevée (**~86%**) garantissant la robustesse.
   - Isolation via **Mock** (BDD, Modèle).
   - Teste la logique interne.
 - **Fonctionnels (`test_functional_api.py`) :**
-  - Simulation HTTP complète (`Test Client`).
+  - Simulation HTTP complète (`TestClient`).
   - Vérification des codes erreurs (404, 422).
 
 </div>
