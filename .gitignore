@@ -17,7 +17,6 @@ models/model_pipeline.joblib
 # Résultats et sorties générées
 outputs/
 figures/
-*.png
 *.jpg
 *.pdf
 *.svg
@@ -33,6 +32,7 @@ figures/
 # Fichiers Python compilés
 __pycache__/
 *.py[cod]
+g*i.py
 *.so
 
 # Dossiers d’édition/IDEs
