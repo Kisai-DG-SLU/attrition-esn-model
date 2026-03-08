@@ -1,46 +1,11 @@
-# Environnement virtuel
-.venv/
-uv.lock
-.env
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-notebooks/.ipynb_checkpoints/
-
-# Fichiers de données potentiellement privés ou volumineux
-data/
-
-# Fichiers binaires
-app/attrition_esn
-models/model_pipeline.joblib
-
-# Résultats et sorties générées
-outputs/
-figures/
-*.jpg
-*.pdf
-*.svg
-
-# Fichiers auxiliaires ou temporaires
-*.log
-*.tmp
-*.bak
-
-# Fichiers système MacOS
-.DS_Store
-
-# Fichiers Python compilés
 __pycache__/
-*.py[cod]
-g*i.py
-*.so
-
-# Dossiers d’édition/IDEs
-.vscode/
-.idea/
-*.swp
-
-# Support présentation
-presentation/*.pptx
-presentation/*.pdf
-
+*.pyc
+.env
+.envrc
+.DS_Store
+.coverage
+htmlcov/
+pixi.lock
+.pixi/
+data/
+_bmad-output/
